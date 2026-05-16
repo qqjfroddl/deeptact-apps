@@ -1,0 +1,12 @@
+[
+  {
+    "repo": "ai-level-survey",
+    "code": "AILS",
+    "name": "AI 활용 레벨 진단",
+    "category": "강의 도구",
+    "status": "live",
+    "pinned": true,
+    "url": "",
+    "description": "강의 현장에서 QR로 5단계 자가진단 → 실시간 막대·도넛 대시보드"
+  }
+]
