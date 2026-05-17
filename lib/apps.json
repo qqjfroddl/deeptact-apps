@@ -6,7 +6,7 @@
     "category": "강의 도구",
     "status": "live",
     "pinned": true,
-    "url": "",
+    "url": "https://ai-level-survey-ebon.vercel.app/admin?k=deeptact",
     "description": "강의 현장에서 QR로 5단계 자가진단 → 실시간 막대·도넛 대시보드"
   },
   {
@@ -16,7 +16,77 @@
     "category": "강의 도구",
     "status": "live",
     "pinned": true,
-    "url": "",
+    "url": "https://lecture-mailer.vercel.app",
     "description": "교육과정 생성 → QR로 학습자 이메일 등록 → 시작·종료 자료 메일 자동 발송"
+  },
+  {
+    "repo": "led-core-values-app",
+    "code": "CV5",
+    "name": "핵심가치 진단",
+    "category": "강의 도구",
+    "status": "live",
+    "pinned": false,
+    "url": "https://led-core-values-app.netlify.app/",
+    "description": "토너먼트 방식으로 나의 5대 핵심가치 발견 (송가치 박사 워크북)"
+  },
+  {
+    "repo": "led-strengths-finder",
+    "code": "STR",
+    "name": "나의 강점 발견",
+    "category": "강의 도구",
+    "status": "live",
+    "pinned": false,
+    "url": "https://led-strengths-finder.netlify.app/",
+    "description": "갤럽 기반 34가지 테마 중 TOP 5 강점 진단 (객관식 40 + 주관식 4)"
+  },
+  {
+    "repo": "led-mission-satement",
+    "code": "MIS",
+    "name": "미션 & 비전 선언문",
+    "category": "강의 도구",
+    "status": "live",
+    "pinned": false,
+    "url": "https://led-mission-satement.netlify.app/",
+    "description": "핵심가치·강점 기반으로 업무/삶의 미션과 3·5·10년 비전 도출"
+  },
+  {
+    "repo": "led-love-language",
+    "code": "LOVE",
+    "name": "사랑의 언어",
+    "category": "강의 도구",
+    "status": "live",
+    "pinned": false,
+    "url": "https://led-love-language.netlify.app/",
+    "description": "게리 채프먼 5가지 사랑의 언어 진단 (가족·연인·동료 관계별)"
+  },
+  {
+    "repo": "my-identity-journey",
+    "code": "JOUR",
+    "name": "가치관 여정",
+    "category": "강의 도구",
+    "status": "live",
+    "pinned": false,
+    "url": "https://my-identity-journey.netlify.app/",
+    "description": "핵심가치 → 강점 → 미션 → 비전 4단계 통합 여정"
+  },
+  {
+    "repo": "daesang-ai-leader-survey-dashboard",
+    "code": "DSAI",
+    "name": "대상 팀장 AI 사전설문 대시보드",
+    "category": "강의 도구",
+    "status": "live",
+    "pinned": true,
+    "url": "https://daesang-ai-leader-survey-dashboard.netlify.app/",
+    "description": "대상(주) 팀장 AI 리더십 과정 사전설문 분석 (강사용 화면)"
+  },
+  {
+    "repo": "burnout-kbat",
+    "code": "KBAT",
+    "name": "번아웃 자가진단 (K-BAT)",
+    "category": "강의 도구",
+    "status": "live",
+    "pinned": false,
+    "url": "https://burnout-kbat.netlify.app/",
+    "description": "K-BAT 기반 22문항 직무소진 평가 (4차원: 탈진·심적거리·인지·정서 손상)"
   }
 ]
