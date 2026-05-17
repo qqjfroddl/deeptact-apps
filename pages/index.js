@@ -1,5 +1,5 @@
 // 딥택트러닝 앱 라이브러리 메인 — 헤더 + 통계 + 검색·필터 + 카드 그리드
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Head from "next/head";
 import fs from "fs";
 import path from "path";
@@ -49,9 +49,41 @@ export async function getStaticProps() {
   };
 }
 
+const PIN_STORAGE_KEY = "deeptact-apps-pins";
+
+function loadPinOverrides() {
+  if (typeof window === "undefined") return {};
+  try {
+    return JSON.parse(localStorage.getItem(PIN_STORAGE_KEY) || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function savePinOverrides(overrides) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(PIN_STORAGE_KEY, JSON.stringify(overrides));
+}
+
 export default function Home({ apps }) {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("전체");
+  const [pinOverrides, setPinOverrides] = useState({});
+
+  useEffect(() => {
+    setPinOverrides(loadPinOverrides());
+  }, []);
+
+  function togglePin(repo) {
+    setPinOverrides((prev) => {
+      const next = { ...prev };
+      const app = apps.find((a) => a.repo === repo);
+      const currentlyPinned = repo in next ? next[repo] : !!app?.pinned;
+      next[repo] = !currentlyPinned;
+      savePinOverrides(next);
+      return next;
+    });
+  }
 
   // 카테고리 칩 목록 — 데이터에 있는 카테고리 + "전체" + 상태
   const categories = useMemo(() => {
@@ -70,6 +102,10 @@ export default function Home({ apps }) {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return apps
+      .map((a) => ({
+        ...a,
+        pinned: a.repo in pinOverrides ? pinOverrides[a.repo] : !!a.pinned,
+      }))
       .filter((a) => {
         if (filter !== "전체" && a.category !== filter) return false;
         if (!q) return true;
@@ -82,7 +118,7 @@ export default function Home({ apps }) {
         const bd = b.updated_at ? Date.parse(b.updated_at) : 0;
         return bd - ad;
       });
-  }, [apps, query, filter]);
+  }, [apps, query, filter, pinOverrides]);
 
   return (
     <>
@@ -154,7 +190,7 @@ export default function Home({ apps }) {
         {filtered.length > 0 ? (
           <div className="grid">
             {filtered.map((a) => (
-              <AppCard key={a.repo || a.name} app={a} />
+              <AppCard key={a.repo || a.name} app={a} onTogglePin={togglePin} />
             ))}
           </div>
         ) : (
@@ -372,6 +408,22 @@ export default function Home({ apps }) {
           gap: 10px;
         }
         .card-head-left { display: flex; align-items: center; gap: 10px; }
+        .card-head-right { display: flex; align-items: center; gap: 8px; }
+        .pin-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 32px;
+          height: 32px;
+          border: none;
+          background: transparent;
+          color: var(--muted);
+          cursor: pointer;
+          border-radius: 8px;
+          transition: color 0.15s, background 0.15s;
+        }
+        .pin-btn:hover { color: var(--accent); background: var(--chip-bg); }
+        .pin-btn.active { color: var(--accent); }
         .code-badge {
           font-family: 'Plus Jakarta Sans', sans-serif;
           font-size: 11px;

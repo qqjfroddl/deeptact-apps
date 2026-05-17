@@ -1,4 +1,4 @@
-// 앱 1개를 표시하는 카드 — 이미지 디자인의 제안서 카드 패턴 따름
+// 앱 1개를 표시하는 카드 — 핀 토글 버튼 + 링크/QR/GitHub 액션
 import { useState, useEffect } from "react";
 
 const STATUS_LABEL = {
@@ -7,7 +7,7 @@ const STATUS_LABEL = {
   archived: "보관",
 };
 
-export default function AppCard({ app }) {
+export default function AppCard({ app, onTogglePin }) {
   const [copied, setCopied] = useState(false);
   const [qrSrc, setQrSrc] = useState("");
   const [showQr, setShowQr] = useState(false);
@@ -50,9 +50,25 @@ export default function AppCard({ app }) {
           <span className="code-badge">{app.code || "—"}</span>
           <span className="card-category">{app.category || "기타"}</span>
         </div>
-        <span className={`status-chip status-${app.status || "wip"}`}>
-          {STATUS_LABEL[app.status] || "작업중"}
-        </span>
+        <div className="card-head-right">
+          <span className={`status-chip status-${app.status || "wip"}`}>
+            {STATUS_LABEL[app.status] || "작업중"}
+          </span>
+          {onTogglePin && app.repo && (
+            <button
+              type="button"
+              className={`pin-btn ${app.pinned ? "active" : ""}`}
+              onClick={() => onTogglePin(app.repo)}
+              title={app.pinned ? "핀 해제" : "핀 고정"}
+              aria-label={app.pinned ? "핀 해제" : "핀 고정"}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill={app.pinned ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M12 17v5" />
+                <path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z" />
+              </svg>
+            </button>
+          )}
+        </div>
       </header>
 
       <h3 className="card-title">{app.name || app.repo}</h3>
