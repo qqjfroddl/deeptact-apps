@@ -6,7 +6,17 @@
     "category": "강의 도구",
     "status": "live",
     "pinned": true,
-    "url": "https://ai-level-survey-ebon.vercel.app/admin?k=deeptact",
+    "url": "",
     "description": "강의 현장에서 QR로 5단계 자가진단 → 실시간 막대·도넛 대시보드"
+  },
+  {
+    "repo": "lecture-mailer",
+    "code": "LMAIL",
+    "name": "강의 메일 자동화",
+    "category": "강의 도구",
+    "status": "live",
+    "pinned": true,
+    "url": "",
+    "description": "교육과정 생성 → QR로 학습자 이메일 등록 → 시작·종료 자료 메일 자동 발송"
   }
 ]

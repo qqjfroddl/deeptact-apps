@@ -1,0 +1,5 @@
+node_modules
+.next
+desktop.ini
+.env.local
+.env*.local
