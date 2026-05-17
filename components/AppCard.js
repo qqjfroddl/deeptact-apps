@@ -96,7 +96,7 @@ export default function AppCard({ app, onTogglePin, isEditing, isEdited, isCusto
           <>
             <button
               type="button"
-              className="btn-primary"
+              className="btn-primary btn-edit"
               onClick={() => onEdit && onEdit(app)}
             >
               편집

@@ -269,12 +269,7 @@ export default function Home({ apps: baselineApps }) {
   // 카테고리 칩 목록 — "전체" + 사용중인 카테고리
   const categories = useMemo(() => ["전체", ...allCategories], [allCategories]);
 
-  const stats = useMemo(() => {
-    const total = apps.length;
-    const live = apps.filter((a) => a.status === "live").length;
-    const wip = apps.filter((a) => a.status === "wip").length;
-    return { total, live, wip };
-  }, [apps]);
+  const stats = useMemo(() => ({ total: apps.length }), [apps]);
 
   const appsByCategory = useMemo(() => {
     const counts = {};
@@ -333,14 +328,6 @@ export default function Home({ apps: baselineApps }) {
             <div className="stat-block">
               <div className="stat-num">{stats.total}</div>
               <div className="stat-label">TOTAL</div>
-            </div>
-            <div className="stat-block">
-              <div className="stat-num">{stats.live}</div>
-              <div className="stat-label">LIVE</div>
-            </div>
-            <div className="stat-block">
-              <div className="stat-num">{stats.wip}</div>
-              <div className="stat-label">WIP</div>
             </div>
             <button
               type="button"
@@ -949,6 +936,9 @@ export default function Home({ apps: baselineApps }) {
           color: #c0392b;
           border-color: #c0392b;
         }
+        /* 편집 버튼 — '앱 열기'와 색을 분리해 편집 모드를 즉시 식별 */
+        .btn-primary.btn-edit { background: #C77B1F; }
+        .btn-primary.btn-edit:hover { background: #C77B1F; filter: brightness(1.08); }
       `}</style>
     </>
   );
