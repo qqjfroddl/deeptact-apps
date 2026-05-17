@@ -3,3 +3,4 @@ node_modules
 desktop.ini
 .env.local
 .env*.local
+*.log

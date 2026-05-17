@@ -1,4 +1,4 @@
-// 딥택트러닝 앱 라이브러리 메인 — 헤더 + 통계 + 검색·필터 + 카드 그리드
+// 딥택트러닝 앱 라이브러리 메인 — 헤더 + 통계 + 검색·필터 + 카드 그리드 (+ 편집 모드)
 import { useEffect, useMemo, useState } from "react";
 import Head from "next/head";
 import fs from "fs";
@@ -6,6 +6,25 @@ import path from "path";
 
 import AppCard from "../components/AppCard";
 import ThemeToggle from "../components/ThemeToggle";
+import EditDialog from "../components/EditDialog";
+import CategoryManager from "../components/CategoryManager";
+import {
+  loadEditState,
+  saveEdits,
+  saveCustom,
+  saveCategories,
+  saveDeleted,
+  savePins,
+  clearAllEdits,
+  newCustomId,
+  mergeApps,
+  mergeCategories,
+  isCustomApp,
+  isEditedApp,
+  normalizeAppInput,
+  exportAsJson,
+  downloadText,
+} from "../lib/edits";
 
 // --- getStaticProps: apps.json 로드 + GitHub API 자동 enrich (옵션) ---
 export async function getStaticProps() {
@@ -49,48 +68,206 @@ export async function getStaticProps() {
   };
 }
 
-const PIN_STORAGE_KEY = "deeptact-apps-pins";
-
-function loadPinOverrides() {
-  if (typeof window === "undefined") return {};
-  try {
-    return JSON.parse(localStorage.getItem(PIN_STORAGE_KEY) || "{}");
-  } catch {
-    return {};
-  }
-}
-
-function savePinOverrides(overrides) {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(PIN_STORAGE_KEY, JSON.stringify(overrides));
-}
-
-export default function Home({ apps }) {
+export default function Home({ apps: baselineApps }) {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("전체");
-  const [pinOverrides, setPinOverrides] = useState({});
+  const [editMode, setEditMode] = useState(false);
+  const [editState, setEditState] = useState({
+    edits: {}, custom: [], categories: [], deleted: [], pins: {},
+  });
+  const [dialog, setDialog] = useState({ open: false, mode: "edit", app: null });
+  const [catManagerOpen, setCatManagerOpen] = useState(false);
 
   useEffect(() => {
-    setPinOverrides(loadPinOverrides());
+    setEditState(loadEditState());
   }, []);
 
+  // 모든 머지된 앱 (baseline ⊕ overrides ⊕ deleted ⊕ custom)
+  const apps = useMemo(
+    () => mergeApps(baselineApps, editState),
+    [baselineApps, editState]
+  );
+
   function togglePin(repo) {
-    setPinOverrides((prev) => {
-      const next = { ...prev };
+    setEditState((prev) => {
       const app = apps.find((a) => a.repo === repo);
-      const currentlyPinned = repo in next ? next[repo] : !!app?.pinned;
-      next[repo] = !currentlyPinned;
-      savePinOverrides(next);
-      return next;
+      const currentlyPinned =
+        prev.edits[repo]?.pinned != null
+          ? prev.edits[repo].pinned
+          : repo in prev.pins
+          ? prev.pins[repo]
+          : !!app?.pinned;
+      const nextPins = { ...prev.pins, [repo]: !currentlyPinned };
+      savePins(nextPins);
+      // edits.pinned 가 있으면 pins 가 가려지므로 함께 제거
+      let nextEdits = prev.edits;
+      if (prev.edits[repo]?.pinned != null) {
+        const { pinned: _, ...rest } = prev.edits[repo];
+        nextEdits = { ...prev.edits, [repo]: rest };
+        if (Object.keys(rest).length === 0) {
+          const { [repo]: __, ...editsClean } = nextEdits;
+          nextEdits = editsClean;
+        }
+        saveEdits(nextEdits);
+      }
+      return { ...prev, pins: nextPins, edits: nextEdits };
     });
   }
 
-  // 카테고리 칩 목록 — 데이터에 있는 카테고리 + "전체" + 상태
-  const categories = useMemo(() => {
-    const set = new Set();
-    apps.forEach((a) => a.category && set.add(a.category));
-    return ["전체", ...Array.from(set)];
-  }, [apps]);
+  function openEditFor(app) {
+    setDialog({ open: true, mode: "edit", app });
+  }
+  function openCreate() {
+    setDialog({ open: true, mode: "create", app: null });
+  }
+  function closeDialog() {
+    setDialog({ open: false, mode: "edit", app: null });
+  }
+
+  function saveDialog(values) {
+    const cleaned = normalizeAppInput(values);
+    if (dialog.mode === "create") {
+      const newApp = {
+        repo: newCustomId(),
+        ...cleaned,
+        status: cleaned.status || "live",
+        pinned: !!cleaned.pinned,
+      };
+      const nextCustom = [...editState.custom, newApp];
+      saveCustom(nextCustom);
+      // 새 카테고리가 있으면 customCategories 에도 자동 등록
+      let nextCategories = editState.categories;
+      if (cleaned.category && !mergeCategories(apps, editState.categories).includes(cleaned.category)) {
+        nextCategories = Array.from(new Set([...editState.categories, cleaned.category]));
+        saveCategories(nextCategories);
+      }
+      setEditState((prev) => ({ ...prev, custom: nextCustom, categories: nextCategories }));
+    } else {
+      const target = dialog.app;
+      if (!target) return closeDialog();
+      const repo = target.repo;
+      // baseline 앱은 edits 에, custom 앱은 custom 배열에 직접 반영
+      if (isCustomApp(target)) {
+        const nextCustom = editState.custom.map((a) =>
+          a.repo === repo ? { ...a, ...cleaned } : a
+        );
+        saveCustom(nextCustom);
+        let nextCategories = editState.categories;
+        if (cleaned.category && !mergeCategories(apps, editState.categories).includes(cleaned.category)) {
+          nextCategories = Array.from(new Set([...editState.categories, cleaned.category]));
+          saveCategories(nextCategories);
+        }
+        setEditState((prev) => ({ ...prev, custom: nextCustom, categories: nextCategories }));
+      } else {
+        // pinned 는 pins 시스템과 일치하도록 별도로 처리
+        const { pinned, ...restClean } = cleaned;
+        const nextEdits = { ...editState.edits, [repo]: { ...(editState.edits[repo] || {}), ...restClean } };
+        // 빈 객체면 제거 (수정됨 배지 정확성)
+        if (Object.keys(nextEdits[repo]).length === 0) delete nextEdits[repo];
+        saveEdits(nextEdits);
+
+        let nextPins = editState.pins;
+        if (typeof pinned === "boolean") {
+          nextPins = { ...editState.pins, [repo]: pinned };
+          savePins(nextPins);
+        }
+
+        let nextCategories = editState.categories;
+        if (cleaned.category && !mergeCategories(apps, editState.categories).includes(cleaned.category)) {
+          nextCategories = Array.from(new Set([...editState.categories, cleaned.category]));
+          saveCategories(nextCategories);
+        }
+        setEditState((prev) => ({ ...prev, edits: nextEdits, pins: nextPins, categories: nextCategories }));
+      }
+    }
+    closeDialog();
+  }
+
+  function deleteApp(app) {
+    if (!confirm(`'${app.name || app.repo}' 앱을 삭제할까요?`)) return;
+    setEditState((prev) => {
+      if (isCustomApp(app)) {
+        const nextCustom = prev.custom.filter((a) => a.repo !== app.repo);
+        saveCustom(nextCustom);
+        return { ...prev, custom: nextCustom };
+      }
+      const nextDeleted = Array.from(new Set([...prev.deleted, app.repo]));
+      saveDeleted(nextDeleted);
+      return { ...prev, deleted: nextDeleted };
+    });
+  }
+
+  function addCategory(name) {
+    if (!name) return;
+    setEditState((prev) => {
+      const next = Array.from(new Set([...prev.categories, name]));
+      saveCategories(next);
+      return { ...prev, categories: next };
+    });
+  }
+
+  function renameCategory(oldName, newName) {
+    setEditState((prev) => {
+      const nextCategories = prev.categories.map((c) => (c === oldName ? newName : c));
+      saveCategories(nextCategories);
+      // baseline 앱: edits 에 category 오버라이드
+      const nextEdits = { ...prev.edits };
+      baselineApps.forEach((a) => {
+        const effective = nextEdits[a.repo]?.category ?? a.category;
+        if (effective === oldName) {
+          nextEdits[a.repo] = { ...(nextEdits[a.repo] || {}), category: newName };
+        }
+      });
+      saveEdits(nextEdits);
+      // custom 앱: 직접 수정
+      const nextCustom = prev.custom.map((a) =>
+        a.category === oldName ? { ...a, category: newName } : a
+      );
+      saveCustom(nextCustom);
+      return { ...prev, categories: nextCategories, edits: nextEdits, custom: nextCustom };
+    });
+  }
+
+  function deleteCategory(name, replaceWith = "") {
+    setEditState((prev) => {
+      const nextCategories = prev.categories.filter((c) => c !== name);
+      saveCategories(nextCategories);
+      const nextEdits = { ...prev.edits };
+      baselineApps.forEach((a) => {
+        const effective = nextEdits[a.repo]?.category ?? a.category;
+        if (effective === name) {
+          nextEdits[a.repo] = { ...(nextEdits[a.repo] || {}), category: replaceWith };
+        }
+      });
+      saveEdits(nextEdits);
+      const nextCustom = prev.custom.map((a) =>
+        a.category === name ? { ...a, category: replaceWith } : a
+      );
+      saveCustom(nextCustom);
+      // 현재 필터가 삭제된 카테고리라면 전체로 리셋
+      if (filter === name) setFilter("전체");
+      return { ...prev, categories: nextCategories, edits: nextEdits, custom: nextCustom };
+    });
+  }
+
+  function handleExport() {
+    const json = exportAsJson(apps);
+    downloadText("apps.json", json);
+  }
+
+  function handleResetAll() {
+    if (!confirm("모든 편집 내용을 삭제하고 apps.json 원본 상태로 되돌릴까요?\n(핀 설정은 유지됩니다)")) return;
+    clearAllEdits();
+    setEditState((prev) => ({ ...prev, edits: {}, custom: [], categories: [], deleted: [] }));
+  }
+
+  const allCategories = useMemo(
+    () => mergeCategories(apps, editState.categories),
+    [apps, editState.categories]
+  );
+
+  // 카테고리 칩 목록 — "전체" + 사용중인 카테고리
+  const categories = useMemo(() => ["전체", ...allCategories], [allCategories]);
 
   const stats = useMemo(() => {
     const total = apps.length;
@@ -99,13 +276,18 @@ export default function Home({ apps }) {
     return { total, live, wip };
   }, [apps]);
 
+  const appsByCategory = useMemo(() => {
+    const counts = {};
+    apps.forEach((a) => {
+      if (!a.category) return;
+      counts[a.category] = (counts[a.category] || 0) + 1;
+    });
+    return counts;
+  }, [apps]);
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return apps
-      .map((a) => ({
-        ...a,
-        pinned: a.repo in pinOverrides ? pinOverrides[a.repo] : !!a.pinned,
-      }))
       .filter((a) => {
         if (filter !== "전체" && a.category !== filter) return false;
         if (!q) return true;
@@ -118,7 +300,13 @@ export default function Home({ apps }) {
         const bd = b.updated_at ? Date.parse(b.updated_at) : 0;
         return bd - ad;
       });
-  }, [apps, query, filter, pinOverrides]);
+  }, [apps, query, filter]);
+
+  const hasAnyEdits =
+    Object.keys(editState.edits).length > 0 ||
+    editState.custom.length > 0 ||
+    editState.deleted.length > 0 ||
+    editState.categories.length > 0;
 
   return (
     <>
@@ -154,9 +342,52 @@ export default function Home({ apps }) {
               <div className="stat-num">{stats.wip}</div>
               <div className="stat-label">WIP</div>
             </div>
+            <button
+              type="button"
+              className={`edit-mode-toggle ${editMode ? "active" : ""}`}
+              onClick={() => setEditMode((v) => !v)}
+              title={editMode ? "편집 모드 종료" : "편집 모드"}
+              aria-label="편집 모드"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
+            </button>
             <ThemeToggle />
           </div>
         </header>
+
+        {editMode && (
+          <div className="edit-toolbar">
+            <button type="button" className="toolbar-btn toolbar-btn-primary" onClick={openCreate}>
+              + 새 앱
+            </button>
+            <button type="button" className="toolbar-btn" onClick={() => setCatManagerOpen(true)}>
+              카테고리 관리
+            </button>
+            <button
+              type="button"
+              className="toolbar-btn"
+              onClick={handleExport}
+              disabled={!hasAnyEdits}
+              title={hasAnyEdits ? "현재 상태를 apps.json 형식으로 다운로드" : "내보낼 변경사항이 없습니다"}
+            >
+              JSON 내보내기
+            </button>
+            <button
+              type="button"
+              className="toolbar-btn toolbar-btn-ghost"
+              onClick={handleResetAll}
+              disabled={!hasAnyEdits}
+            >
+              모든 편집 초기화
+            </button>
+            <span className="toolbar-hint">
+              편집 내용은 이 브라우저에만 저장됩니다. git 에 반영하려면 'JSON 내보내기' 후 apps.json 을 커밋하세요.
+            </span>
+          </div>
+        )}
 
         <div className="divider" />
 
@@ -190,12 +421,39 @@ export default function Home({ apps }) {
         {filtered.length > 0 ? (
           <div className="grid">
             {filtered.map((a) => (
-              <AppCard key={a.repo || a.name} app={a} onTogglePin={togglePin} />
+              <AppCard
+                key={a.repo || a.name}
+                app={a}
+                onTogglePin={togglePin}
+                isEditing={editMode}
+                isEdited={isEditedApp(a, editState.edits)}
+                isCustom={isCustomApp(a)}
+                onEdit={openEditFor}
+                onDelete={deleteApp}
+              />
             ))}
           </div>
         ) : (
           <div className="empty">조건에 맞는 앱이 없습니다</div>
         )}
+
+        <EditDialog
+          open={dialog.open}
+          mode={dialog.mode}
+          initialApp={dialog.app}
+          categories={allCategories}
+          onClose={closeDialog}
+          onSubmit={saveDialog}
+        />
+        <CategoryManager
+          open={catManagerOpen}
+          categories={allCategories}
+          appsByCategory={appsByCategory}
+          onClose={() => setCatManagerOpen(false)}
+          onAdd={addCategory}
+          onRename={renameCategory}
+          onDelete={deleteCategory}
+        />
 
         <footer className="page-footer">
           <span>© 딥택트러닝 · 박재현</span>
@@ -608,6 +866,89 @@ export default function Home({ apps }) {
         }
 
         input { font-size: 16px; }
+
+        /* Edit mode */
+        .edit-mode-toggle {
+          position: relative;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 40px;
+          height: 40px;
+          border-radius: 999px;
+          border: 1px solid var(--border);
+          background: var(--surface);
+          color: var(--text-dim);
+          cursor: pointer;
+          transition: all 0.15s;
+        }
+        .edit-mode-toggle:hover {
+          color: var(--accent);
+          border-color: var(--accent);
+        }
+        .edit-mode-toggle.active {
+          background: var(--accent);
+          border-color: var(--accent);
+          color: white;
+        }
+        .edit-toolbar {
+          display: flex;
+          gap: 8px;
+          align-items: center;
+          flex-wrap: wrap;
+          padding: 14px 16px;
+          margin-top: 20px;
+          background: var(--surface-2);
+          border: 1px solid var(--border);
+          border-radius: 12px;
+        }
+        .toolbar-btn {
+          padding: 8px 14px;
+          border-radius: 8px;
+          border: 1px solid var(--border);
+          background: var(--surface);
+          color: var(--text);
+          font-family: inherit;
+          font-size: 13px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.15s;
+        }
+        .toolbar-btn:hover:not(:disabled) { background: var(--chip-bg); }
+        .toolbar-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .toolbar-btn-primary {
+          background: var(--accent); border-color: var(--accent); color: white;
+        }
+        .toolbar-btn-primary:hover:not(:disabled) { filter: brightness(1.1); background: var(--accent); }
+        .toolbar-btn-ghost { color: var(--muted); }
+        .toolbar-hint {
+          flex: 1 1 auto;
+          font-size: 12px;
+          color: var(--muted);
+          padding-left: 4px;
+          min-width: 200px;
+        }
+        .edit-badge {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: 10px;
+          font-weight: 800;
+          letter-spacing: 0.05em;
+          padding: 3px 8px;
+          border-radius: 999px;
+        }
+        .edit-badge-new {
+          background: rgba(60,110,113,0.18);
+          color: var(--accent);
+        }
+        .edit-badge-edited {
+          background: rgba(195,150,40,0.18);
+          color: #b58a1a;
+        }
+        [data-theme="dark"] .edit-badge-edited { color: #d6b25e; }
+        .icon-btn-danger:hover:not(:disabled) {
+          color: #c0392b;
+          border-color: #c0392b;
+        }
       `}</style>
     </>
   );
