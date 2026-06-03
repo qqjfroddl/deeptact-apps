@@ -88,5 +88,15 @@
     "pinned": false,
     "url": "https://burnout-kbat.netlify.app/",
     "description": "K-BAT 기반 22문항 직무소진 평가 (4차원: 탈진·심적거리·인지·정서 손상)"
+  },
+  {
+    "repo": "time-life-survey",
+    "code": "TLS",
+    "name": "시간·인생관리 설문",
+    "category": "강의 도구",
+    "status": "live",
+    "pinned": true,
+    "url": "https://time-life-survey.vercel.app/admin/courses?k=deeptact",
+    "description": "표준 풀에서 문항 골라 강의별 설문 구성 — 익명 응답·실시간 분포·다른 과정과 비교"
   }
 ]
