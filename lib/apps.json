@@ -98,5 +98,15 @@
     "pinned": true,
     "url": "https://time-life-survey.vercel.app/admin/courses?k=deeptact",
     "description": "표준 풀에서 문항 골라 강의별 설문 구성 — 익명 응답·실시간 분포·다른 과정과 비교"
+  },
+  {
+    "repo": "dashboard-training-generator",
+    "code": "DTG",
+    "name": "주간업무 대시보드 실습 메이커",
+    "category": "강의 도구",
+    "status": "live",
+    "pinned": true,
+    "url": "https://dashboard-training-generator.vercel.app/",
+    "description": "주간업무 보고서 형태의 지난주·이번주 Excel 실습 파일 생성 — 대시보드 만들기 강의용"
   }
 ]
