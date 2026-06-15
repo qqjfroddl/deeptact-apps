@@ -108,5 +108,15 @@
     "pinned": true,
     "url": "https://dashboard-training-generator.vercel.app/",
     "description": "주간업무 보고서 형태의 지난주·이번주 Excel 실습 파일 생성 — 대시보드 만들기 강의용"
+  },
+  {
+    "repo": "html-editor",
+    "code": "HTMLE",
+    "name": "강의 HTML 편집기",
+    "category": "강의 도구",
+    "status": "live",
+    "pinned": true,
+    "url": "https://deeptact-apps.vercel.app/html-editor/",
+    "description": "강의용 HTML을 브라우저에서 열어 텍스트·이미지·슬라이드 순서를 편집하고 다시 저장"
   }
 ]
