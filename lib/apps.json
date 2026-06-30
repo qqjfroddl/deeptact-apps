@@ -118,5 +118,15 @@
     "pinned": true,
     "url": "https://deeptact-apps.vercel.app/html-editor/",
     "description": "강의용 HTML을 브라우저에서 열어 텍스트·이미지·슬라이드 순서를 편집하고 다시 저장"
+  },
+  {
+    "repo": "sales-dashboard",
+    "code": "SALES",
+    "name": "매장 매출 대시보드",
+    "category": "실무 도구",
+    "status": "live",
+    "pinned": false,
+    "url": "https://deeptact-apps.vercel.app/sales-dashboard/",
+    "description": "POS 매출리포트 엑셀·CSV를 올리면 매출·시간대·메뉴·결제를 자동 분석 (매장 사장님용)"
   }
 ]

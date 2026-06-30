@@ -1,0 +1,393 @@
+<!-- 매장 사장님용 매출 분석 대시보드 — POS 엑셀/CSV 업로드 시 브라우저에서 직접 분석·재렌더 -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>매장 매출 대시보드</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+/* Korean semantic line breaks — apply globally */
+* { word-break: keep-all; overflow-wrap: break-word; line-break: strict; box-sizing: border-box; }
+:root {
+  --primary: #2E3142; --accent: #3C6D71; --accent-light: #4A8A8F;
+  --surface: #F2F1EF; --card: #ffffff; --ink: #2E3142;
+  --muted: #7b7f8c; --line: #e6e4e0; --warn: #C2774E;
+}
+html, body { margin: 0; padding: 0; background: var(--surface); color: var(--ink);
+  font-family: "Paperlogy 5 Medium", "Paperlogy 5Medium", "Paperlogy", sans-serif;
+  letter-spacing: -0.02em; line-height: 1.7; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 32px 24px 80px; }
+.head { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 12px; margin-bottom: 8px; }
+.head h1 { font-family: "Paperlogy 7 Bold","Paperlogy",sans-serif; font-weight: 700; font-size: 26px; margin: 0; }
+.head .period { color: var(--muted); font-size: 14px; }
+.tag { display:inline-block; background: var(--accent); color:#fff; font-size: 12px; padding: 3px 10px; border-radius: 999px; margin-left: 8px; vertical-align: middle; }
+.sub { color: var(--muted); font-size: 13px; margin: 2px 0 22px; }
+.drop { display: block; background: var(--card); border: 2px dashed var(--accent-light); border-radius: 16px;
+  padding: 22px; text-align: center; cursor: pointer; transition: .15s; margin-bottom: 22px; }
+.drop:hover, .drop.over { background: #eef3f2; border-color: var(--accent); }
+.drop .big { font-family:"Paperlogy 7 Bold","Paperlogy",sans-serif; font-weight:700; font-size: 15px; color: var(--primary); }
+.drop .small { font-size: 12.5px; color: var(--muted); margin-top: 3px; }
+.drop .btn { display:inline-block; margin-top:10px; background: var(--accent); color:#fff;
+  font-size: 13px; padding: 7px 18px; border-radius: 999px; }
+.drop input { display: none; }
+.status { font-size: 12.5px; margin-top: 10px; min-height: 18px; }
+.status.ok { color: var(--accent); }
+.status.err { color: var(--warn); }
+.kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 14px; }
+.kpi { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px 18px 16px; }
+.kpi .label { font-size: 13px; color: var(--muted); }
+.kpi .val { font-family: "Paperlogy 7 Bold","Paperlogy",sans-serif; font-weight:700; font-size: 25px; margin-top: 4px; color: var(--primary); }
+.kpi .val small { font-size: 14px; font-weight: 700; }
+.kpi .note { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.kpi.alert .val { color: var(--warn); }
+.grid { display: grid; gap: 14px; }
+.g2 { grid-template-columns: 1fr 1fr; }
+.g32 { grid-template-columns: 1.4fr 1fr; }
+.panel { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 20px 22px; margin-top: 14px; }
+.panel h2 { font-family:"Paperlogy 7 Bold","Paperlogy",sans-serif; font-weight:700; font-size: 16px; margin: 0 0 2px; }
+.panel .desc { font-size: 12.5px; color: var(--muted); margin: 0 0 14px; }
+.chartbox { position: relative; height: 260px; }
+.chartbox.sm { height: 220px; }
+.insight { background: #eef3f2; border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 11px 14px; font-size: 13px; margin-top: 12px; color: #34474a; }
+.insight b { font-family:"Paperlogy 7 Bold","Paperlogy",sans-serif; font-weight: 700; color: var(--accent); }
+table.heat { border-collapse: collapse; width: 100%; font-size: 12px; }
+table.heat th { color: var(--muted); font-weight: 500; padding: 4px; text-align: center; }
+table.heat td { text-align: center; padding: 0; }
+table.heat .cell { height: 30px; border-radius: 6px; display:flex; align-items:center; justify-content:center;
+  color:#fff; font-size: 11px; margin: 2px; }
+table.heat .rowlabel { color: var(--muted); text-align: right; padding-right: 8px; width: 34px; }
+.rank { list-style: none; margin: 0; padding: 0; }
+.rank li { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px dashed var(--line); font-size: 13.5px; }
+.rank li:last-child { border-bottom: none; }
+.rank .num { width: 20px; color: var(--muted); font-family:"Paperlogy 7 Bold",sans-serif; font-weight: 700; }
+.rank .nm { flex: 1; }
+.rank .bar { height: 8px; background: var(--accent); border-radius: 4px; }
+.rank .amt { width: 92px; text-align: right; color: var(--primary); }
+.rank .qty { width: 56px; text-align: right; color: var(--muted); font-size: 12px; }
+.foot { color: var(--muted); font-size: 12px; text-align: center; margin-top: 34px; line-height: 1.8; }
+@media (max-width: 900px){
+  .kpis { grid-template-columns: repeat(2, 1fr); }
+  .g2, .g32 { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="head">
+    <div><h1>매장 매출 대시보드 <span class="tag" id="srcTag">샘플</span></h1></div>
+    <div class="period" id="periodLabel">—</div>
+  </div>
+  <p class="sub">POS 매출리포트 엑셀(.xlsx)이나 CSV를 올리면 바로 분석해 드려요.</p>
+
+  <label class="drop" id="drop">
+    <div class="big">📤 엑셀 · CSV 파일을 여기에 끌어다 놓으세요</div>
+    <div class="small">POS '매출리포트' 엑셀 그대로 OK · 결제 상세내역 / 상품 주문 상세내역 시트를 자동 인식합니다</div>
+    <span class="btn">파일 선택</span>
+    <input type="file" id="fileInput" accept=".xlsx,.xls,.csv">
+    <div class="status" id="status"></div>
+  </label>
+
+  <div class="kpis">
+    <div class="kpi"><div class="label">월 매출</div><div class="val"><span id="kTotal">—</span><small>원</small></div><div class="note">순매출(할인·옵션 반영)</div></div>
+    <div class="kpi"><div class="label">결제 건수</div><div class="val"><span id="kOrders">—</span><small>건</small></div><div class="note" id="kOrdersNote"></div></div>
+    <div class="kpi"><div class="label">객단가</div><div class="val"><span id="kAvg">—</span><small>원</small></div><div class="note">결제 1건당 평균</div></div>
+    <div class="kpi"><div class="label">일 평균 매출</div><div class="val"><span id="kDayavg">—</span><small>원</small></div><div class="note" id="kDaysNote"></div></div>
+    <div class="kpi alert"><div class="label">결제 취소</div><div class="val"><span id="kCancel">—</span><small>건</small></div><div class="note" id="kCancelNote"></div></div>
+  </div>
+
+  <div class="panel">
+    <h2>① 일별 매출 추이</h2>
+    <p class="desc">하루하루 매출 흐름. 진한 막대가 주말입니다.</p>
+    <div class="chartbox"><canvas id="dailyChart"></canvas></div>
+    <div class="insight" id="insDaily"></div>
+  </div>
+
+  <div class="grid g2">
+    <div class="panel" style="margin-top:14px">
+      <h2>② 요일별 매출</h2>
+      <p class="desc">어떤 요일에 손님이 몰리나.</p>
+      <div class="chartbox sm"><canvas id="weekdayChart"></canvas></div>
+      <div class="insight" id="insWeekday"></div>
+    </div>
+    <div class="panel" style="margin-top:14px">
+      <h2>③ 시간대별 매출</h2>
+      <p class="desc">하루 중 언제 바쁜가.</p>
+      <div class="chartbox sm"><canvas id="hourChart"></canvas></div>
+      <div class="insight" id="insHour"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>④ 요일 × 시간대 히트맵 <span style="font-size:12px;color:var(--muted);font-weight:400">— 가장 강력한 한 장</span></h2>
+    <p class="desc">진할수록 매출이 큰 시간(숫자는 만원). 인력 배치·재료 준비·이벤트 타이밍을 여기서 정합니다.</p>
+    <div id="heatmap"></div>
+    <div class="insight" id="insHeat"></div>
+  </div>
+
+  <div class="grid g32">
+    <div class="panel" style="margin-top:14px">
+      <h2>⑤ 메뉴 베스트 순위</h2>
+      <p class="desc">매출 기여 상위 상품. 막대 길이는 매출, 우측은 판매수량.</p>
+      <ul class="rank" id="rankList"></ul>
+    </div>
+    <div class="panel" style="margin-top:14px">
+      <h2>카테고리 비중</h2>
+      <p class="desc">무엇으로 버는 가게인가.</p>
+      <div class="chartbox sm"><canvas id="catChart"></canvas></div>
+      <div class="insight" id="insCat"></div>
+    </div>
+  </div>
+
+  <div class="grid g2">
+    <div class="panel" style="margin-top:14px">
+      <h2>⑥ 결제수단 비중</h2>
+      <p class="desc">현금 비중은 세무, 카드는 수수료와 연결됩니다.</p>
+      <div class="chartbox sm"><canvas id="payChart"></canvas></div>
+      <div class="insight" id="insPay"></div>
+    </div>
+    <div class="panel" style="margin-top:14px">
+      <h2>카드사별 매출</h2>
+      <p class="desc">수수료율 협상·정산 확인용.</p>
+      <div class="chartbox sm"><canvas id="cardChart"></canvas></div>
+    </div>
+  </div>
+
+  <p class="foot">
+    이 화면은 <b>매출 분석 범위</b>입니다. 비용(원가·임대료·인건비)과 직원 데이터를 추가하면<br>
+    손익·영업이익률·메뉴별 마진·시간대 인건비 대비 매출까지 확장됩니다.<br>
+    딥택트러닝 · 데이터 기준 [매출리포트 &gt; 주문한 날]
+  </p>
+</div>
+
+<script>
+const won = n => Math.round(n).toLocaleString('ko-KR');
+const C = { primary:'#2E3142', accent:'#3C6D71', light:'#4A8A8F', warn:'#C2774E', grey:'#cdd6d5' };
+const WK = ['월','화','수','목','금','토','일'];
+const WD = ['일','월','화','수','목','금','토'];
+Chart.defaults.font.family = "'Paperlogy 5 Medium','Paperlogy',sans-serif";
+Chart.defaults.color = '#7b7f8c';
+
+let charts = {};
+function mk(id, cfg){ if(charts[id]) charts[id].destroy(); charts[id] = new Chart(document.getElementById(id), cfg); }
+
+const norm = s => String(s==null?'':s).replace(/[\s\n\r]+/g,'');
+function findCol(H, keys){ for(let i=0;i<H.length;i++){const h=norm(H[i]); for(const k of keys){ if(h.includes(k)) return i; }} return -1; }
+
+function analyze(wb){
+  let payS=null, prodS=null;
+  for(const name of wb.SheetNames){
+    const aoa = XLSX.utils.sheet_to_json(wb.Sheets[name], {header:1, raw:true, cellDates:true});
+    for(let r=0;r<Math.min(3,aoa.length);r++){
+      const hs=(aoa[r]||[]).map(norm);
+      if(!payS && hs.includes('결제수단') && hs.includes('매입사')) payS={aoa,hdr:r};
+      if(!prodS && hs.includes('상품명') && hs.includes('카테고리') && hs.includes('수량')) prodS={aoa,hdr:r};
+    }
+  }
+  if(!payS && !prodS) throw new Error('결제 상세내역 / 상품 주문 상세내역 형식을 찾지 못했어요.');
+  const D={};
+
+  if(payS){
+    const H=payS.aoa[payS.hdr];
+    const ci={date:findCol(H,['결제기준일자','기준일자']),time:findCol(H,['결제시각','시각']),
+      cnt:findCol(H,['결제건수']),amt:findCol(H,['결제금액']),method:findCol(H,['결제수단']),
+      issuer:findCol(H,['매입사']),status:findCol(H,['결제상태'])};
+    let total=0,orders=0,cancel=0,payrows=0;
+    const daily={},hour={},weekday={},heat={},pay={},card={},cntday={};
+    for(let r=payS.hdr+1;r<payS.aoa.length;r++){
+      const row=payS.aoa[r]; if(!row||row[ci.date]==null) continue;
+      const d=new Date(row[ci.date]); if(isNaN(d)) continue;
+      const t=(ci.time>=0 && row[ci.time]!=null)?new Date(row[ci.time]):null;
+      const amt=Number(row[ci.amt])||0; const cnt=ci.cnt>=0?(Number(row[ci.cnt])||0):1;
+      payrows++; total+=amt; orders+=cnt;
+      const dk=d.toISOString().slice(0,10);
+      daily[dk]=(daily[dk]||0)+amt; cntday[dk]=(cntday[dk]||0)+cnt;
+      const w=WD[d.getDay()]; weekday[w]=(weekday[w]||0)+amt;
+      if(t&&!isNaN(t)){const h=t.getHours(); hour[h]=(hour[h]||0)+amt; heat[w+'-'+h]=(heat[w+'-'+h]||0)+amt;}
+      if(ci.method>=0&&row[ci.method]) pay[row[ci.method]]=(pay[row[ci.method]]||0)+amt;
+      if(ci.issuer>=0&&row[ci.issuer]) card[row[ci.issuer]]=(card[row[ci.issuer]]||0)+amt;
+      if(ci.status>=0&&row[ci.status]&&String(row[ci.status]).includes('취소')) cancel++;
+    }
+    const dkeys=Object.keys(daily).sort();
+    Object.assign(D,{total,orders,cancel,payrows,
+      avg: orders?Math.round(total/orders):0,
+      days: dkeys.length, dayavg: dkeys.length?Math.round(total/dkeys.length):0,
+      first: dkeys[0], last: dkeys[dkeys.length-1],
+      daily: dkeys.map(k=>({d:k,amt:daily[k],cnt:cntday[k]})),
+      weekday,hour,heat,pay,card});
+  }
+  if(prodS){
+    const H=prodS.aoa[prodS.hdr];
+    const ci={name:findCol(H,['상품명']),cat:findCol(H,['카테고리']),qty:findCol(H,['수량']),
+      net:findCol(H,['실판매금액','실판매','실 판매']),date:findCol(H,['주문기준일자','기준일자'])};
+    const cat={},prod={};
+    for(let r=prodS.hdr+1;r<prodS.aoa.length;r++){
+      const row=prodS.aoa[r]; if(!row) continue;
+      if(ci.date>=0 && row[ci.date]==null) continue;
+      const c=row[ci.cat],nm=row[ci.name],q=Number(row[ci.qty])||0,amt=Number(row[ci.net])||0;
+      if(c){cat[c]=cat[c]||[0,0]; cat[c][0]+=q; cat[c][1]+=amt;}
+      if(nm){prod[nm]=prod[nm]||[0,0]; prod[nm][0]+=q; prod[nm][1]+=amt;}
+    }
+    D.cat=Object.fromEntries(Object.entries(cat).sort((a,b)=>b[1][1]-a[1][1]));
+    D.prod=Object.entries(prod).filter(e=>e[1][1]>0).sort((a,b)=>b[1][1]-a[1][1]).map(e=>[e[0],e[1][0],e[1][1]]);
+  }
+  return D;
+}
+
+function insights(D){
+  const I={};
+  if(D.weekday){
+    const we=(D.weekday['토']||0)+(D.weekday['일']||0);
+    const sh=D.total?Math.round(we/D.total*100):0;
+    const top=Object.entries(D.weekday).sort((a,b)=>b[1]-a[1])[0];
+    I.weekday='🗓️ <b>토·일이 전체의 약 '+sh+'%</b>. 가장 매출 큰 요일은 <b>'+top[0]+'요일</b>('+won(top[1])+'원)입니다.';
+    I.daily='📈 매출이 '+(sh>=55?'<b>주말에 크게 몰립니다</b>':'요일별로 분산돼 있습니다')+'. 일 평균은 약 '+won(D.dayavg)+'원이에요.';
+  }
+  if(D.hour && Object.keys(D.hour).length){
+    const hs=Object.entries(D.hour).map(([h,v])=>[+h,v]);
+    const mx=Math.max(...hs.map(x=>x[1]));
+    const peak=hs.filter(x=>x[1]>=mx*0.5).map(x=>x[0]).sort((a,b)=>a-b);
+    I.hour='⏰ <b>'+peak[0]+'~'+peak[peak.length-1]+'시</b>에 매출이 집중됩니다. 이 시간대가 하루의 피크예요.';
+  }
+  if(D.heat && Object.keys(D.heat).length){
+    const top=Object.entries(D.heat).sort((a,b)=>b[1]-a[1])[0];
+    const parts=top[0].split('-');
+    I.heat='🔥 <b>'+parts[0]+'요일 '+parts[1]+'시</b>가 매출 집중 구간('+won(top[1])+'원). 이 시간엔 인력을 더 두고, 한산한 시간은 줄이는 식으로 재배치할 수 있어요.';
+  }
+  if(D.cat){
+    const e=Object.entries(D.cat).filter(x=>x[1][1]>0).sort((a,b)=>b[1][1]-a[1][1]);
+    if(e.length){const sh=Math.round(e[0][1][1]/D.total*100);
+      I.cat='☕ <b>'+e[0][0]+'가 매출의 '+sh+'%</b>. '+(sh>=60?'의존도가 높아 묶음 판매로 객단가를 올릴 여지가 있어요.':'카테고리가 비교적 고르게 분포합니다.');}
+  }
+  if(D.pay){
+    const e=Object.entries(D.pay).filter(x=>x[1]>0);
+    const card=e.filter(x=>norm(x[0]).includes('카드')).reduce((s,x)=>s+x[1],0);
+    const cash=e.filter(x=>norm(x[0]).includes('현금')).reduce((s,x)=>s+x[1],0);
+    I.pay='💳 <b>카드 '+Math.round(card/D.total*100)+'%</b> · 현금 '+Math.round(cash/D.total*100)+'%. 카드 수수료가 비용의 큰 축이 됩니다.';
+  }
+  return I;
+}
+
+function set(id,v){const e=document.getElementById(id); if(e) e.textContent=v;}
+function setHTML(id,v){const e=document.getElementById(id); if(e) e.innerHTML=v||'';}
+
+function renderHeat(D, hrs){
+  const hours = hrs.length?hrs:[9,10,11,12,13,14,15,16,17,18,19];
+  let max=0; Object.values(D.heat||{}).forEach(v=>{if(v>max)max=v;}); max=max||1;
+  let html='<table class="heat"><tr><th></th>'+hours.map(h=>'<th>'+h+'</th>').join('')+'</tr>';
+  WK.forEach(w=>{
+    html+='<tr><td class="rowlabel">'+w+'</td>';
+    hours.forEach(h=>{
+      const v=(D.heat&&D.heat[w+'-'+h])||0; const t=v/max;
+      const bg = v===0 ? '#f3f2f0' : 'rgba(60,109,113,'+(0.15+t*0.85)+')';
+      const col = t>0.45?'#fff':'#9aa0a6';
+      const lbl = v>0 ? Math.round(v/10000)+'' : '';
+      html+='<td><div class="cell" style="background:'+bg+';color:'+col+'" title="'+w+' '+h+'시 · '+won(v)+'원">'+lbl+'</div></td>';
+    });
+    html+='</tr>';
+  });
+  document.getElementById('heatmap').innerHTML=html+'</table>';
+}
+
+function renderRank(D){
+  const top=(D.prod||[]).slice(0,12);
+  const max=top.length?top[0][2]:1;
+  document.getElementById('rankList').innerHTML = top.map((p,i)=>
+    '<li><span class="num">'+(i+1)+'</span><span class="nm">'+p[0]+'</span>'+
+    '<span class="bar" style="width:'+Math.max(8,p[2]/max*120)+'px"></span>'+
+    '<span class="amt">'+won(p[2])+'</span><span class="qty">'+p[1]+'개</span></li>').join('');
+}
+
+function renderAll(D, srcName){
+  document.getElementById('srcTag').textContent = srcName ? '내 데이터' : '샘플';
+  document.getElementById('periodLabel').textContent =
+    (D.first&&D.last) ? ('집계기간 · '+D.first+' ~ '+D.last+' ('+D.days+'일)') : '—';
+
+  set('kTotal', won(D.total)); set('kOrders', won(D.orders));
+  set('kOrdersNote', D.days?('하루 평균 약 '+Math.round(D.orders/D.days)+'건'):'');
+  set('kAvg', won(D.avg)); set('kDayavg', won(D.dayavg));
+  set('kDaysNote', '영업 '+D.days+'일 기준');
+  set('kCancel', won(D.cancel||0));
+  set('kCancelNote', D.payrows?('전체의 약 '+(D.cancel/D.payrows*100).toFixed(1)+'% · 점검 권장'):'');
+
+  const I = insights(D);
+  setHTML('insDaily',I.daily); setHTML('insWeekday',I.weekday); setHTML('insHour',I.hour);
+  setHTML('insHeat',I.heat); setHTML('insCat',I.cat); setHTML('insPay',I.pay);
+
+  const days=D.daily.map(x=>x.d.slice(5));
+  const isWe=D.daily.map(x=>{const g=new Date(x.d).getDay(); return g===0||g===6;});
+  mk('dailyChart',{type:'bar',data:{labels:days,datasets:[{data:D.daily.map(x=>x.amt),
+    backgroundColor:isWe.map(w=>w?C.accent:C.grey),borderRadius:4}]},
+    options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>won(c.raw)+'원'}}},
+    scales:{y:{ticks:{callback:v=>(v/10000)+'만'}},x:{ticks:{maxRotation:0,autoSkip:true,maxTicksLimit:14}}}}});
+
+  mk('weekdayChart',{type:'bar',data:{labels:WK,datasets:[{data:WK.map(k=>D.weekday[k]||0),
+    backgroundColor:WK.map(k=>(k==='토'||k==='일')?C.accent:C.grey),borderRadius:5}]},
+    options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>won(c.raw)+'원'}}},
+    scales:{y:{ticks:{callback:v=>(v/10000)+'만'}}}}});
+
+  const hrs=Object.keys(D.hour).map(Number).sort((a,b)=>a-b);
+  const hmax=Math.max(...hrs.map(h=>D.hour[h]),1);
+  mk('hourChart',{type:'bar',data:{labels:hrs.map(h=>h+'시'),datasets:[{data:hrs.map(h=>D.hour[h]),
+    backgroundColor:hrs.map(h=>D.hour[h]>=hmax*0.5?C.warn:C.grey),borderRadius:5}]},
+    options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>won(c.raw)+'원'}}},
+    scales:{y:{ticks:{callback:v=>(v/10000)+'만'}}}}});
+
+  renderHeat(D, hrs);
+  renderRank(D);
+
+  const catK=Object.keys(D.cat||{}).filter(k=>D.cat[k][1]>0);
+  mk('catChart',{type:'doughnut',data:{labels:catK,datasets:[{data:catK.map(k=>D.cat[k][1]),
+    backgroundColor:['#3C6D71','#4A8A8F','#7BA9AC','#A8C5C7','#cdd6d5','#e6e4e0','#b9c2c2']}]},
+    options:{cutout:'58%',plugins:{legend:{position:'right',labels:{boxWidth:12,font:{size:11}}},
+      tooltip:{callbacks:{label:c=>c.label+' '+won(c.raw)+'원'}}}}});
+
+  const payK=Object.keys(D.pay||{}).filter(k=>D.pay[k]>0);
+  mk('payChart',{type:'doughnut',data:{labels:payK,datasets:[{data:payK.map(k=>D.pay[k]),
+    backgroundColor:['#3C6D71','#C2774E','#4A8A8F','#cdd6d5','#A8C5C7']}]},
+    options:{cutout:'58%',plugins:{legend:{position:'right',labels:{boxWidth:12,font:{size:11}}},
+      tooltip:{callbacks:{label:c=>c.label+' '+won(c.raw)+'원'}}}}});
+
+  const cardK=Object.keys(D.card||{}).filter(k=>D.card[k]>0).sort((a,b)=>D.card[b]-D.card[a]);
+  mk('cardChart',{type:'bar',data:{labels:cardK,datasets:[{data:cardK.map(k=>D.card[k]),
+    backgroundColor:C.light,borderRadius:4}]},
+    options:{indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>won(c.raw)+'원'}}},
+    scales:{x:{ticks:{callback:v=>(v/10000)+'만'}},y:{ticks:{font:{size:11}}}}}});
+}
+
+const statusEl = document.getElementById('status');
+function showStatus(msg, type){ statusEl.textContent=msg; statusEl.className='status '+(type||''); }
+
+function handleFile(file){
+  if(!file) return;
+  if(!/\.(xlsx|xls|csv)$/i.test(file.name)){ showStatus('엑셀(.xlsx)이나 CSV 파일만 올릴 수 있어요.','err'); return; }
+  showStatus('분석 중… '+file.name, '');
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const wb=XLSX.read(new Uint8Array(e.target.result), {type:'array', cellDates:true});
+      const D=analyze(wb);
+      renderAll(D, file.name);
+      showStatus('✓ 분석 완료 — '+file.name, 'ok');
+      window.scrollTo({top:0,behavior:'smooth'});
+    }catch(err){ showStatus('분석 실패 — '+err.message, 'err'); }
+  };
+  reader.onerror=()=>showStatus('파일을 읽지 못했어요.','err');
+  reader.readAsArrayBuffer(file);
+}
+
+document.getElementById('fileInput').addEventListener('change', e=>handleFile(e.target.files[0]));
+const drop=document.getElementById('drop');
+['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over');}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('over');}));
+drop.addEventListener('drop',e=>{ if(e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]); });
+
+/* 샘플 데이터 (2026년 2월) */
+const SAMPLE = {"total":5701050,"orders":586,"avg":9729,"days":28,"dayavg":203609,"cancel":23,"payrows":632,"first":"2026-02-01","last":"2026-02-28","daily":[{"d":"2026-02-01","amt":265300,"cnt":33},{"d":"2026-02-02","amt":68750,"cnt":10},{"d":"2026-02-03","amt":33150,"cnt":8},{"d":"2026-02-04","amt":91500,"cnt":10},{"d":"2026-02-05","amt":187250,"cnt":15},{"d":"2026-02-06","amt":134650,"cnt":13},{"d":"2026-02-07","amt":725700,"cnt":64},{"d":"2026-02-08","amt":316400,"cnt":40},{"d":"2026-02-09","amt":65700,"cnt":6},{"d":"2026-02-10","amt":54400,"cnt":7},{"d":"2026-02-11","amt":44750,"cnt":5},{"d":"2026-02-12","amt":136250,"cnt":19},{"d":"2026-02-13","amt":160000,"cnt":15},{"d":"2026-02-14","amt":486150,"cnt":51},{"d":"2026-02-15","amt":351300,"cnt":49},{"d":"2026-02-16","amt":27650,"cnt":8},{"d":"2026-02-17","amt":63300,"cnt":13},{"d":"2026-02-18","amt":32450,"cnt":9},{"d":"2026-02-19","amt":181900,"cnt":16},{"d":"2026-02-20","amt":150400,"cnt":14},{"d":"2026-02-21","amt":596300,"cnt":67},{"d":"2026-02-22","amt":326900,"cnt":42},{"d":"2026-02-23","amt":85600,"cnt":12},{"d":"2026-02-24","amt":79150,"cnt":8},{"d":"2026-02-25","amt":64450,"cnt":7},{"d":"2026-02-26","amt":44000,"cnt":12},{"d":"2026-02-27","amt":190900,"cnt":17},{"d":"2026-02-28","amt":736800,"cnt":62}],"weekday":{"월":247700,"화":230000,"수":233150,"목":549400,"금":635950,"토":2544950,"일":1259900},"hour":{"9":132900,"10":499650,"11":164200,"12":1289800,"13":900050,"14":1033550,"15":795200,"16":357600,"17":175100,"18":254000,"19":99000},"heat":{"토-19":99000,"토-18":254000,"토-17":86500,"토-16":153600,"토-15":412300,"토-14":473100,"토-13":293100,"토-12":390000,"토-11":81000,"토-10":195950,"토-9":106400,"금-15":55000,"금-14":76000,"금-13":215250,"금-12":58000,"금-10":209700,"목-15":195300,"목-14":38000,"목-13":42500,"목-12":250600,"수-13":36850,"수-12":170800,"수-10":3500,"화-14":28600,"화-13":23450,"화-12":147150,"월-14":51150,"월-13":46800,"월-12":146250,"일-17":88600,"일-16":191500,"일-15":112800,"일-14":344700,"일-13":242100,"일-12":127000,"일-11":50200,"일-10":76500,"금-11":22000,"목-16":12500,"수-14":22000,"화-15":19800,"화-11":11000,"화-9":0,"월-10":3500,"월-9":0,"일-9":26500,"목-10":10500},"pay":{"카드":5454050,"현금(사업자)":153000,"현금(미발행)":5500,"QR결제":88500,"기타":0,"계좌이체(미발행)":0},"card":{"비씨카드":1243550,"KB국민카드":1076500,"현대카드":751300,"롯데카드":569000,"삼성카드":532000,"신한카드":478100,"NH카드":382600,"하나카드":278600,"우리카드":187400,"토스페이":43500,"기타":0},"cat":{"COFFEE":[979,4055200],"DESSERT":[143,678350],"TEA":[75,412000],"NON COFFEE":[66,369100],"ADE / JUICE":[33,186400],"진동벨":[31,0]},"prod":[["커피01",466,1583100],["커피02",233,1272150],["커피03",149,600800],["커피04",116,532000],["음료01",37,199650],["디저트01",30,174000],["디저트02",40,144000],["티03",20,110000],["티01",20,110000],["티02",17,102000],["음료03",15,90000],["디저트05",16,80000],["디저트06",12,77350],["디저트03",13,71500],["주스03",11,65400],["디저트04",12,60000],["주스01",10,55000],["커피06",11,48150],["티05",9,45000],["티04",9,45000],["음료05",6,36000],["디저트07",7,35000],["주스02",6,33000],["주스04",6,33000],["음료02",5,26950],["조정항목01",10,23000],["커피05",4,19000],["음료04",3,16500],["디저트08",3,13500]]};
+renderAll(SAMPLE, null);
+</script>
+</body>
+</html>
