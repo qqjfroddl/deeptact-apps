@@ -128,5 +128,15 @@
     "pinned": false,
     "url": "https://deeptact-apps.vercel.app/sales-dashboard/",
     "description": "POS 매출리포트 엑셀·CSV를 올리면 매출·시간대·메뉴·결제를 자동 분석 (매장 사장님용)"
+  },
+  {
+    "repo": "arabic-bible-memorizer",
+    "code": "ABM",
+    "name": "아랍어 말씀 암송",
+    "category": "신앙 도구",
+    "status": "live",
+    "pinned": true,
+    "url": "https://deeptact-apps.vercel.app/arabic-bible-memorizer/",
+    "description": "아랍어 성경 구절을 듣고 따라 읽고 가려 가며 암송하는 선교사님용 학습 앱"
   }
 ]

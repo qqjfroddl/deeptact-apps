@@ -1,0 +1,852 @@
+<!doctype html>
+<!-- 아랍어 성경 암송 훈련 앱 — 하나교회 선교사용, 단일 파일 웹앱 -->
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>아랍어 말씀 암송</title>
+<meta name="theme-color" content="#2E3142">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="아랍어 암송">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* Korean semantic line breaks — apply globally */
+* {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  line-break: strict;
+}
+/* 아랍어는 표준 줄바꿈으로 되돌림 */
+.ar, .ar * { word-break: normal; line-break: auto; overflow-wrap: normal; }
+
+@font-face {
+  font-family: 'Paperlogy 5 Medium';
+  src: url('https://cdn.jsdelivr.net/gh/fonts-archive/Paperlogy/Paperlogy-5Medium.woff2') format('woff2');
+  font-weight: 500; font-display: swap;
+}
+@font-face {
+  font-family: 'Paperlogy 7 Bold';
+  src: url('https://cdn.jsdelivr.net/gh/fonts-archive/Paperlogy/Paperlogy-7Bold.woff2') format('woff2');
+  font-weight: 700; font-display: swap;
+}
+
+:root {
+  --primary: #2E3142;
+  --accent: #3C6D71;
+  --accent-l: #4A8A8F;
+  --surface: #F2F1EF;
+  --card: #ffffff;
+  --line: #E3E1DC;
+  --muted: #66707A;
+  --danger: #B23B3B;
+}
+
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--surface);
+  color: var(--primary);
+  font-family: 'Paperlogy 5 Medium', 'Paperlogy 5Medium', 'Paperlogy', sans-serif;
+  font-weight: 500;
+  line-height: 1.7;
+  letter-spacing: -0.02em;
+  -webkit-font-smoothing: antialiased;
+}
+button { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+
+header {
+  position: sticky; top: 0; z-index: 30;
+  background: var(--primary); color: #fff;
+  padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
+}
+header h1 {
+  margin: 0; font-size: 17px;
+  font-family: 'Paperlogy 7 Bold', 'Paperlogy 7Bold', 'Paperlogy', sans-serif; font-weight: 700;
+}
+.headBtn {
+  background: var(--accent); color: #fff; border: 0; border-radius: 999px;
+  padding: 9px 13px; font: inherit; font-size: 14px; cursor: pointer;
+  text-decoration: none; white-space: nowrap;
+}
+.headBtns { display: flex; gap: 7px; align-items: center; }
+.headBtn.ghost { background: transparent; border: 1.5px solid rgba(255,255,255,.45); }
+
+main { max-width: 560px; margin: 0 auto; padding: 14px 14px 48px; display: flex; flex-direction: column; gap: 13px; }
+
+.card { background: var(--card); border-radius: 20px; padding: 18px; box-shadow: 0 1px 4px rgba(46,49,66,.07); }
+
+/* 첫 사용 안내 */
+#hint {
+  background: #E7EFEE; border: 1.5px solid var(--accent-l); border-radius: 16px;
+  padding: 12px 14px; font-size: 14px; display: flex; align-items: center; gap: 10px;
+}
+#hint button { margin-left: auto; flex-shrink: 0; background: var(--accent); color: #fff; border: 0; border-radius: 10px; padding: 8px 12px; font: inherit; font-size: 13px; cursor: pointer; }
+
+/* 구절 이동 */
+.versenav { display: flex; align-items: center; gap: 10px; }
+.navBtn {
+  width: 54px; height: 54px; flex-shrink: 0; border: 0; border-radius: 16px;
+  background: var(--card); color: var(--primary); font-size: 20px; cursor: pointer;
+  box-shadow: 0 1px 4px rgba(46,49,66,.07);
+}
+.navMid { flex: 1; text-align: center; }
+.navMid .cnt { font-size: 13px; color: var(--muted); display: block; }
+.navMid .nm {
+  font-size: 20px; font-family: 'Paperlogy 7 Bold', 'Paperlogy 7Bold', 'Paperlogy', sans-serif; font-weight: 700;
+}
+
+.refRow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+#doneBadge {
+  background: var(--accent-l); color: #fff; border-radius: 999px;
+  font-size: 12.5px; padding: 3px 11px;
+}
+
+.ar {
+  direction: rtl; text-align: right;
+  font-family: 'Amiri', 'Traditional Arabic', 'Geeza Pro', 'Noto Naskh Arabic', serif;
+  font-size: 29px; line-height: 2.25; margin: 8px 0 4px; color: var(--primary);
+}
+.word { display: inline-block; padding: 0 3px; border-radius: 9px; transition: background .15s, color .15s; }
+.word.hid { background: #E4EAE9; color: transparent; cursor: pointer; user-select: none; }
+.word.hid.peek { background: #FBEFC9; color: var(--primary); }
+
+.chips { display: flex; gap: 8px; margin-top: 10px; }
+.chip {
+  border: 1.5px solid var(--accent); background: #fff; color: var(--accent);
+  border-radius: 999px; padding: 7px 15px; font: inherit; font-size: 14px; cursor: pointer;
+}
+.chip.on { background: var(--accent); color: #fff; }
+
+.pron { color: var(--muted); font-size: 15px; line-height: 1.75; margin: 10px 0 0; }
+.ko { font-size: 16px; line-height: 1.75; margin: 8px 0 0; }
+
+/* 재생 */
+.playWrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+#playBtn {
+  width: 84px; height: 84px; border-radius: 50%; border: 0; cursor: pointer;
+  background: var(--accent); color: #fff; font-size: 30px;
+  box-shadow: 0 4px 14px rgba(60,109,113,.35);
+}
+#playBtn.playing { background: var(--primary); animation: pulse 1.4s infinite; }
+@keyframes pulse { 50% { opacity: .8; } }
+#srcLabel { font-size: 13px; color: var(--muted); }
+
+.segRow { display: flex; gap: 8px; width: 100%; align-items: center; }
+.segs { display: flex; flex: 1; background: var(--surface); border-radius: 13px; padding: 4px; gap: 4px; }
+.seg {
+  flex: 1; border: 0; background: transparent; color: var(--muted);
+  border-radius: 10px; padding: 10px 2px; font: inherit; font-size: 13.5px; cursor: pointer; white-space: nowrap;
+}
+.seg.on { background: var(--primary); color: #fff; }
+#repeatBtn {
+  border: 1.5px solid var(--line); background: #fff; color: var(--muted);
+  border-radius: 13px; padding: 10px 13px; font: inherit; font-size: 13.5px; cursor: pointer; flex-shrink: 0;
+}
+#repeatBtn.on { border-color: var(--accent); background: var(--accent); color: #fff; }
+
+#ttsBanner {
+  background: #FFF4E0; color: #7A5300; border-radius: 13px;
+  padding: 11px 13px; font-size: 13.5px; line-height: 1.6; width: 100%; box-sizing: border-box;
+}
+
+/* 암송 연습 */
+h3.secTit {
+  margin: 0 0 4px; font-size: 16px;
+  font-family: 'Paperlogy 7 Bold', 'Paperlogy 7Bold', 'Paperlogy', sans-serif; font-weight: 700;
+}
+.secHint { margin: 0 0 10px; font-size: 13.5px; color: var(--muted); }
+#stageHint { min-height: 20px; margin: 8px 0 0; font-size: 13.5px; color: var(--accent); }
+
+#doneBtn {
+  width: 100%; margin-top: 12px; border-radius: 15px; padding: 15px; font: inherit; font-size: 15.5px; cursor: pointer;
+  border: 1.5px solid var(--accent); background: #fff; color: var(--accent);
+}
+#doneBtn.done { background: var(--accent-l); border-color: var(--accent-l); color: #fff; }
+
+/* 녹음 */
+.recRow { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.recRow button {
+  border: 0; border-radius: 13px; padding: 13px 4px; font: inherit; font-size: 14px; cursor: pointer;
+  background: var(--surface); color: var(--primary);
+}
+.recRow button.main { background: var(--accent); color: #fff; }
+.recRow button.recing { background: var(--danger) !important; color: #fff; animation: pulse 1.2s infinite; }
+.recRow button.dim { opacity: .45; }
+#recStatus { min-height: 20px; margin: 10px 0 0; font-size: 14px; color: var(--accent); text-align: center; }
+
+details.card summary {
+  cursor: pointer; font-size: 15px;
+  font-family: 'Paperlogy 7 Bold', 'Paperlogy 7Bold', 'Paperlogy', sans-serif; font-weight: 700;
+}
+#refState { font-size: 13.5px; color: var(--muted); margin: 10px 0; }
+
+footer { text-align: center; font-size: 12.5px; color: var(--muted); line-height: 1.7; padding: 4px 16px 30px; }
+
+/* 구절 목록 화면 */
+#listView { position: fixed; inset: 0; background: var(--surface); z-index: 50; overflow-y: auto; display: none; }
+#listView.open { display: block; }
+.listHead {
+  position: sticky; top: 0; background: var(--primary); color: #fff; z-index: 5;
+  padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
+}
+.listHead h2 { margin: 0; font-size: 17px; font-family: 'Paperlogy 7 Bold', 'Paperlogy 7Bold', 'Paperlogy', sans-serif; font-weight: 700; }
+.listBody { max-width: 560px; margin: 0 auto; padding: 14px 14px 40px; display: flex; flex-direction: column; gap: 11px; }
+#progress { font-size: 14px; color: var(--muted); margin: 0; text-align: center; }
+
+#addBox summary { color: var(--accent); font-size: 15.5px; }
+#addBox label { display: block; margin-top: 12px; font-size: 13.5px; color: var(--muted); }
+#addBox input, #addBox textarea {
+  width: 100%; box-sizing: border-box; margin-top: 5px; padding: 12px; font: inherit; font-size: 15px;
+  border: 1.5px solid var(--line); border-radius: 12px; background: #fff; color: var(--primary);
+}
+#fAr { direction: rtl; font-family: 'Amiri', serif; font-size: 21px; line-height: 1.9; min-height: 84px; }
+#fKo, #fPron { min-height: 58px; }
+.formBtns { display: flex; gap: 8px; margin-top: 14px; }
+.formBtns button { flex: 1; border: 0; border-radius: 13px; padding: 13px; font: inherit; font-size: 15px; cursor: pointer; }
+#fSave { background: var(--accent); color: #fff; }
+#fCancel { background: var(--surface); color: var(--primary); }
+#fDel { background: #fff; color: var(--danger); border: 1.5px solid var(--danger) !important; flex: 0 0 auto; padding: 13px 16px; }
+
+.vrow {
+  background: #fff; border-radius: 16px; padding: 13px 15px; cursor: pointer;
+  display: flex; align-items: center; gap: 10px; box-shadow: 0 1px 4px rgba(46,49,66,.06);
+  list-style: none;
+}
+.vrow.sel { outline: 2.5px solid var(--accent); }
+.vrow .vmain { flex: 1; min-width: 0; }
+.vrow b { font-size: 15.5px; font-family: 'Paperlogy 7 Bold', 'Paperlogy 7Bold', 'Paperlogy', sans-serif; font-weight: 700; }
+.vrow .vbadge { font-size: 13px; margin-left: 6px; }
+.vrow .vprev { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+.vrow .editBtn {
+  flex-shrink: 0; border: 1.5px solid var(--line); background: #fff; color: var(--muted);
+  border-radius: 10px; padding: 8px 12px; font: inherit; font-size: 13px; cursor: pointer;
+}
+#verseList { margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+#restoreBtn {
+  margin: 8px auto 0; border: 0; background: none; color: var(--muted);
+  font: inherit; font-size: 13px; text-decoration: underline; cursor: pointer;
+}
+
+#toast {
+  position: fixed; left: 50%; bottom: 30px; transform: translateX(-50%) translateY(20px);
+  background: var(--primary); color: #fff; border-radius: 999px; padding: 11px 20px;
+  font-size: 14px; opacity: 0; pointer-events: none; transition: all .25s; z-index: 99;
+  max-width: 86vw; text-align: center;
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📖 아랍어 말씀 암송</h1>
+  <div class="headBtns">
+    <a class="headBtn ghost" href="guide.html">사용법</a>
+    <button class="headBtn" id="openListBtn">구절 목록</button>
+  </div>
+</header>
+
+<main>
+  <div id="hint" hidden>
+    <span>◀ ▶ 로 구절을 넘기고, 초록 단추를 누르면 아랍어가 들려요.</span>
+    <button id="hintOk">알겠어요</button>
+  </div>
+
+  <nav class="versenav">
+    <button class="navBtn" id="prevBtn" aria-label="이전 구절">◀</button>
+    <div class="navMid">
+      <span class="cnt" id="counter"></span>
+      <span class="nm" id="refKo"></span>
+    </div>
+    <button class="navBtn" id="nextBtn" aria-label="다음 구절">▶</button>
+  </nav>
+
+  <section class="card">
+    <div class="refRow">
+      <span id="doneBadge" hidden>✓ 암송 완료</span>
+    </div>
+    <p class="ar" id="arText" lang="ar" dir="rtl"></p>
+    <div class="chips">
+      <button class="chip" id="pronChip">발음</button>
+      <button class="chip" id="koChip">뜻</button>
+    </div>
+    <p class="pron" id="pronText"></p>
+    <p class="ko" id="koText"></p>
+  </section>
+
+  <section class="card playWrap">
+    <button id="playBtn" aria-label="재생">▶</button>
+    <span id="srcLabel"></span>
+    <div class="segRow">
+      <div class="segs" id="speedSegs">
+        <button class="seg" data-speed="slow">느리게</button>
+        <button class="seg" data-speed="mid">보통</button>
+        <button class="seg" data-speed="full">원래 속도</button>
+      </div>
+      <button id="repeatBtn">반복 재생</button>
+    </div>
+    <div id="ttsBanner" hidden>이 기기에 아랍어 음성(TTS)이 없어요.
+아래 「원어민 음성 관리」에서 녹음을 넣으면 재생할 수 있어요.
+휴대폰에서는 대부분 자동으로 들려요.</div>
+  </section>
+
+  <section class="card">
+    <h3 class="secTit">암송 연습</h3>
+    <p class="secHint">단계를 올릴수록 단어가 많이 가려져요.</p>
+    <div class="segs" id="stageSegs">
+      <button class="seg" data-stage="0">전체 보기</button>
+      <button class="seg" data-stage="1">조금 가리기</button>
+      <button class="seg" data-stage="2">많이 가리기</button>
+      <button class="seg" data-stage="3">다 외우기</button>
+    </div>
+    <p id="stageHint"></p>
+    <button id="doneBtn"></button>
+  </section>
+
+  <section class="card">
+    <h3 class="secTit">내 암송 확인하기</h3>
+    <p class="secHint">내 목소리로 녹음해서 원어민 소리와 비교해 보세요.</p>
+    <div class="recRow">
+      <button class="main" id="recMineBtn">● 녹음</button>
+      <button id="playMineBtn">내 녹음 듣기</button>
+      <button id="compareBtn">비교 듣기</button>
+    </div>
+    <p id="recStatus"></p>
+  </section>
+
+  <details class="card" id="manage">
+    <summary>원어민 음성 관리</summary>
+    <p id="refState"></p>
+    <p class="secHint">현지 친구나 선생님께 이 구절을 읽어 달라고 부탁해서 녹음해 두면,
+재생 단추가 그 음성을 사용해요. 음성 파일이 있다면 「파일 넣기」로 담아도 돼요.</p>
+    <div class="recRow">
+      <button class="main" id="recRefBtn">● 녹음</button>
+      <button id="fileRefBtn">파일 넣기</button>
+      <button id="delRefBtn">녹음 지우기</button>
+    </div>
+    <input type="file" id="fileRefInput" accept="audio/*" hidden>
+  </details>
+
+  <footer>
+    아랍어 본문·발음은 반다이크역(퍼블릭 도메인) 기준 초안입니다.
+    사용 전에 꼭 검수해 주세요.<br>
+    녹음은 이 기기 안에만 저장됩니다.<br>
+    <a href="guide.html" style="color:var(--accent)">📖 사용법 자세히 보기</a>
+  </footer>
+</main>
+
+<!-- 구절 목록 화면 -->
+<div id="listView">
+  <div class="listHead">
+    <h2>구절 목록</h2>
+    <button class="headBtn" id="closeListBtn">닫기</button>
+  </div>
+  <div class="listBody">
+    <details class="card" id="addBox">
+      <summary id="formMode">＋ 새 구절 추가</summary>
+      <form id="verseForm">
+        <label>구절 이름 (예: 요한복음 3:16)
+          <input id="fRef" type="text" autocomplete="off">
+        </label>
+        <label>아랍어 본문
+          <textarea id="fAr" lang="ar" dir="rtl"></textarea>
+        </label>
+        <label>한국어 본문
+          <textarea id="fKo"></textarea>
+        </label>
+        <label>한글 발음 (선택)
+          <textarea id="fPron"></textarea>
+        </label>
+        <div class="formBtns">
+          <button type="submit" id="fSave">저장</button>
+          <button type="button" id="fDel" hidden>삭제</button>
+          <button type="button" id="fCancel">닫기</button>
+        </div>
+      </form>
+    </details>
+    <p id="progress"></p>
+    <ul id="verseList"></ul>
+    <button id="restoreBtn">기본 구절 10개 복원하기</button>
+  </div>
+</div>
+
+<audio id="player" hidden></audio>
+<div id="toast"></div>
+
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+
+/* ---------- 기본 구절 (반다이크역 초안 — 검수 필요) ---------- */
+const DEFAULT_VERSES = [
+  { id:'d1', ref:'요한복음 3:16',
+    ar:'لأَنَّهُ هكَذَا أَحَبَّ اللهُ الْعَالَمَ حَتَّى بَذَلَ ابْنَهُ الْوَحِيدَ، لِكَيْ لاَ يَهْلِكَ كُلُّ مَنْ يُؤْمِنُ بِهِ، بَلْ تَكُونُ لَهُ الْحَيَاةُ الأَبَدِيَّةُ.',
+    ko:'하나님이 세상을 이처럼 사랑하사 독생자를 주셨으니 이는 저를 믿는 자마다 멸망치 않고 영생을 얻게 하려 하심이니라',
+    pron:'리안나후 하카다 아합발라후 알알라마, 핫타 바달라 브나후 알와히다, 리카이 라 야흘리카 쿨루 만 유으미누 비히, 발 타쿠누 라훌 하야툴 아바디야.' },
+  { id:'d2', ref:'고린도후서 5:17',
+    ar:'إِذًا إِنْ كَانَ أَحَدٌ فِي الْمَسِيحِ فَهُوَ خَلِيقَةٌ جَدِيدَةٌ. الأَشْيَاءُ الْعَتِيقَةُ قَدْ مَضَتْ، هُوَذَا الْكُلُّ قَدْ صَارَ جَدِيدًا.',
+    ko:'그런즉 누구든지 그리스도 안에 있으면 새로운 피조물이라 이전 것은 지나갔으니 보라 새 것이 되었도다',
+    pron:'이잔 인 카나 아하둔 필마시히 파후와 칼리카툰 자디다. 알아쉬야울 아티카투 카드 마다트, 후와잘 쿨루 카드 사라 자디다.' },
+  { id:'d3', ref:'로마서 3:23',
+    ar:'إِذِ الْجَمِيعُ أَخْطَأُوا وَأَعْوَزَهُمْ مَجْدُ اللهِ.',
+    ko:'모든 사람이 죄를 범하였으매 하나님의 영광에 이르지 못하더니',
+    pron:'이질 자미우 아크타우, 와아와자훔 마즈둘라히.' },
+  { id:'d4', ref:'로마서 6:23',
+    ar:'لأَنَّ أُجْرَةَ الْخَطِيَّةِ هِيَ مَوْتٌ، وَأَمَّا هِبَةُ اللهِ فَهِيَ حَيَاةٌ أَبَدِيَّةٌ بِالْمَسِيحِ يَسُوعَ رَبِّنَا.',
+    ko:'죄의 삯은 사망이요 하나님의 은사는 그리스도 예수 우리 주 안에 있는 영생이니라',
+    pron:'리안나 우즈라탈 카티야티 히야 마우트, 와암마 히바툴라히 파히야 하야툰 아바디야툰 빌마시히 야수아 랍비나.' },
+  { id:'d5', ref:'요한일서 1:9',
+    ar:'إِنِ اعْتَرَفْنَا بِخَطَايَانَا فَهُوَ أَمِينٌ وَعَادِلٌ، حَتَّى يَغْفِرَ لَنَا خَطَايَانَا وَيُطَهِّرَنَا مِنْ كُلِّ إِثْمٍ.',
+    ko:'만일 우리가 우리 죄를 자백하면 저는 미쁘시고 의로우사 우리 죄를 사하시며 모든 불의에서 우리를 깨끗케 하실 것이요',
+    pron:'이니 으타라프나 비카타야나, 파후와 아미눈 와아딜, 핫타 야그피라 라나 카타야나 와유타히라나 민 쿨리 이스민.' },
+  { id:'d6', ref:'빌립보서 4:13',
+    ar:'أَسْتَطِيعُ كُلَّ شَيْءٍ فِي الْمَسِيحِ الَّذِي يُقَوِّينِي.',
+    ko:'내게 능력 주시는 자 안에서 내가 모든 것을 할 수 있느니라',
+    pron:'아스타티우 쿨라 샤이인 필마시힐라디 유카위니.' },
+  { id:'d7', ref:'시편 23:1',
+    ar:'اَلرَّبُّ رَاعِيَّ فَلاَ يُعْوِزُنِي شَيْءٌ.',
+    ko:'여호와는 나의 목자시니 내가 부족함이 없으리로다',
+    pron:'알랍부 라이야, 팔라 유으위주니 샤이운.' },
+  { id:'d8', ref:'마태복음 11:28',
+    ar:'تَعَالَوْا إِلَيَّ يَا جَمِيعَ الْمُتْعَبِينَ وَالثَّقِيلِي الأَحْمَالِ، وَأَنَا أُرِيحُكُمْ.',
+    ko:'수고하고 무거운 짐진 자들아 다 내게로 오라 내가 너희를 쉬게 하리라',
+    pron:'타알라우 일라이야 야 자미알 무트아비나 왓사킬릴 아흐말리, 와아나 우리후쿰.' },
+  { id:'d9', ref:'잠언 3:5',
+    ar:'تَوَكَّلْ عَلَى الرَّبِّ بِكُلِّ قَلْبِكَ، وَعَلَى فَهْمِكَ لاَ تَعْتَمِدْ.',
+    ko:'너는 마음을 다하여 여호와를 의뢰하고 네 명철을 의지하지 말라',
+    pron:'타왁칼 알랄랍비 비쿨리 칼비카, 와알라 파흐미카 라 타으타미드.' },
+  { id:'d10', ref:'요한복음 14:6',
+    ar:'قَالَ لَهُ يَسُوعُ: «أَنَا هُوَ الطَّرِيقُ وَالْحَقُّ وَالْحَيَاةُ. لَيْسَ أَحَدٌ يَأْتِي إِلَى الآبِ إِلاَّ بِي».',
+    ko:'예수께서 가라사대 내가 곧 길이요 진리요 생명이니 나로 말미암지 않고는 아버지께로 올 자가 없느니라',
+    pron:'칼라 라후 야수우, 아나 후왓타리쿠 왈학쿠 왈하야. 라이사 아하둔 야으티 일랄아비 일라 비.' },
+];
+
+/* ---------- 상태 ---------- */
+const LS_V = 'avm.verses.v1', LS_S = 'avm.state.v1', LS_H = 'avm.hint.v1';
+let verses = [];
+let st = { cur:'d1', speed:'mid', repeat:false, showPron:true, showKo:true };
+let stage = 0;
+
+function loadAll(){
+  try { const v = JSON.parse(localStorage.getItem(LS_V)); if (Array.isArray(v) && v.length) verses = v; } catch(e){}
+  if (!verses.length) verses = DEFAULT_VERSES.map(v => ({ ...v, done:false }));
+  try { Object.assign(st, JSON.parse(localStorage.getItem(LS_S)) || {}); } catch(e){}
+  if (!verses.some(v => v.id === st.cur)) st.cur = verses[0].id;
+}
+const saveV = () => localStorage.setItem(LS_V, JSON.stringify(verses));
+const saveS = () => localStorage.setItem(LS_S, JSON.stringify(st));
+const cur = () => verses.find(v => v.id === st.cur);
+const idx = () => verses.findIndex(v => v.id === st.cur);
+
+/* ---------- 오디오 저장소 (IndexedDB, 실패 시 세션 메모리) ---------- */
+let db = null;
+const mem = new Map();
+function openDB(){
+  return new Promise(res => {
+    if (!('indexedDB' in window)) return res(null);
+    let rq;
+    try { rq = indexedDB.open('avm-audio', 1); } catch(e){ return res(null); }
+    rq.onupgradeneeded = () => rq.result.createObjectStore('audio');
+    rq.onsuccess = () => res(rq.result);
+    rq.onerror = () => res(null);
+  });
+}
+function aPut(k, b){
+  return new Promise(res => {
+    if (!db) { mem.set(k, b); return res(); }
+    try {
+      const t = db.transaction('audio', 'readwrite');
+      t.objectStore('audio').put(b, k);
+      t.oncomplete = () => res();
+      t.onerror = () => { mem.set(k, b); res(); };
+    } catch(e){ mem.set(k, b); res(); }
+  });
+}
+function aGet(k){
+  return new Promise(res => {
+    if (!db) return res(mem.get(k) || null);
+    try {
+      const t = db.transaction('audio', 'readonly');
+      const r = t.objectStore('audio').get(k);
+      r.onsuccess = () => res(r.result || mem.get(k) || null);
+      r.onerror = () => res(mem.get(k) || null);
+    } catch(e){ res(mem.get(k) || null); }
+  });
+}
+function aDel(k){
+  return new Promise(res => {
+    mem.delete(k);
+    if (!db) return res();
+    try {
+      const t = db.transaction('audio', 'readwrite');
+      t.objectStore('audio').delete(k);
+      t.oncomplete = () => res();
+      t.onerror = () => res();
+    } catch(e){ res(); }
+  });
+}
+
+/* ---------- 재생 ---------- */
+const player = $('#player');
+let playToken = 0, playing = false, lastUrl = null;
+let voices = [], arVoice = null;
+let hasRef = false, hasMine = false;
+const RATE = { slow:{tts:.55, audio:.7}, mid:{tts:.8, audio:.85}, full:{tts:1, audio:1} };
+
+function refreshVoices(){
+  if (!('speechSynthesis' in window)) return;
+  voices = speechSynthesis.getVoices();
+  arVoice = voices.find(v => /^ar/i.test(v.lang)) || null;
+  refreshAudioFlags();
+}
+function speak(text, done){
+  if (!('speechSynthesis' in window)) { toast('이 기기는 음성 합성을 지원하지 않아요'); done && done(false); return; }
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  if (arVoice) u.voice = arVoice;
+  u.lang = arVoice ? arVoice.lang : 'ar-SA';
+  u.rate = RATE[st.speed].tts;
+  u.onend = () => done && done(true);
+  u.onerror = () => done && done(false);
+  speechSynthesis.speak(u);
+}
+function playBlob(blob, done){
+  if (lastUrl) { URL.revokeObjectURL(lastUrl); lastUrl = null; }
+  lastUrl = URL.createObjectURL(blob);
+  player.src = lastUrl;
+  player.playbackRate = RATE[st.speed].audio;
+  try { player.preservesPitch = true; player.webkitPreservesPitch = true; } catch(e){}
+  player.onended = () => done && done(true);
+  player.onerror = () => done && done(false);
+  player.play().catch(() => done && done(false));
+}
+function setPlayBtn(on){
+  $('#playBtn').textContent = on ? '■' : '▶';
+  $('#playBtn').classList.toggle('playing', on);
+}
+function stopAll(){
+  playToken++;
+  playing = false;
+  try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch(e){}
+  try { player.pause(); } catch(e){}
+  setPlayBtn(false);
+  setStatus('');
+}
+async function playRef(){
+  stopAll();
+  const t = ++playToken;
+  playing = true; setPlayBtn(true);
+  const blob = await aGet(st.cur + ':ref');
+  if (t !== playToken) return;
+  const once = done => blob ? playBlob(blob, done) : speak(cur().ar, done);
+  const cycle = () => once(ok => {
+    if (t !== playToken) return;
+    if (ok && st.repeat) setTimeout(() => { if (t === playToken && playing) cycle(); }, 900);
+    else { playing = false; setPlayBtn(false); }
+  });
+  cycle();
+}
+async function playMine(){
+  stopAll();
+  const t = ++playToken;
+  const b = await aGet(st.cur + ':mine');
+  if (t !== playToken) return;
+  if (!b) { toast('먼저 「● 녹음」으로 내 암송을 녹음해 주세요'); return; }
+  setStatus('내 녹음 ▶');
+  playBlob(b, () => { if (t === playToken) setStatus(''); });
+}
+async function compare(){
+  stopAll();
+  const t = ++playToken;
+  const mine = await aGet(st.cur + ':mine');
+  if (t !== playToken) return;
+  if (!mine) { toast('먼저 「● 녹음」으로 내 암송을 녹음해 주세요'); return; }
+  const ref = await aGet(st.cur + ':ref');
+  if (t !== playToken) return;
+  setStatus('① 원어민 음성 ▶');
+  const step2 = () => {
+    if (t !== playToken) return;
+    setStatus('② 내 녹음 ▶');
+    setTimeout(() => {
+      if (t !== playToken) return;
+      playBlob(mine, () => { if (t === playToken) setStatus('비교 끝. 한 번 더 들으려면 다시 눌러 주세요.'); });
+    }, 600);
+  };
+  if (ref) playBlob(ref, step2); else speak(cur().ar, step2);
+}
+function setStatus(m){ $('#recStatus').textContent = m; }
+
+/* ---------- 녹음 ---------- */
+let recState = null;
+const MIMES = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/aac'];
+function pickMime(){
+  if (!window.MediaRecorder) return null;
+  for (const m of MIMES) { try { if (MediaRecorder.isTypeSupported(m)) return m; } catch(e){} }
+  return '';
+}
+async function toggleRec(slot, btn, label){
+  if (recState) { try { recState.rec.stop(); } catch(e){} return; }
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) {
+    toast('이 환경에서는 녹음이 안 돼요. 배포된 주소(https)에서 열어 주세요.'); return;
+  }
+  let stream;
+  try { stream = await navigator.mediaDevices.getUserMedia({ audio:true }); }
+  catch(e){ toast('마이크를 쓸 수 없어요. 권한을 허용해 주세요.'); return; }
+  stopAll();
+  const mime = pickMime();
+  const rec = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+  const chunks = [];
+  const verseAtStart = st.cur;
+  rec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+  rec.onstop = async () => {
+    stream.getTracks().forEach(tr => tr.stop());
+    recState = null;
+    btn.classList.remove('recing');
+    btn.textContent = label;
+    const blob = new Blob(chunks, { type: rec.mimeType || 'audio/webm' });
+    if (blob.size < 300) { toast('녹음이 너무 짧아요. 다시 해 주세요.'); refreshAudioFlags(); return; }
+    await aPut(verseAtStart + ':' + slot, blob);
+    toast(slot === 'ref' ? '원어민 음성을 저장했어요' : '내 녹음을 저장했어요');
+    refreshAudioFlags();
+  };
+  rec.start();
+  recState = { rec, stream, slot };
+  btn.classList.add('recing');
+  btn.textContent = '■ 끝내기';
+  setStatus(slot === 'ref' ? '원어민 음성 녹음 중… 다 읽으면 「■ 끝내기」' : '내 암송 녹음 중… 다 외우면 「■ 끝내기」');
+}
+
+/* ---------- 화면 그리기 ---------- */
+function hashN(s){ let h = 7; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return h; }
+const FRACS = [0, .35, .7, 1];
+
+function renderArabic(){
+  const box = $('#arText');
+  box.innerHTML = '';
+  const words = cur().ar.split(/\s+/).filter(Boolean);
+  const f = FRACS[stage];
+  words.forEach((w, i) => {
+    const s = document.createElement('span');
+    s.className = 'word';
+    s.textContent = w;
+    if (f > 0 && (hashN(st.cur + '#' + i) % 100) < f * 100) {
+      s.classList.add('hid');
+      s.onclick = () => { s.classList.add('peek'); setTimeout(() => s.classList.remove('peek'), 1400); };
+    }
+    box.appendChild(s);
+    box.appendChild(document.createTextNode(' '));
+  });
+  $('#stageHint').textContent = stage === 0 ? '' : '가려진 단어를 누르면 잠깐 보여요.';
+}
+
+async function refreshAudioFlags(){
+  const id = st.cur;
+  const [r, m] = await Promise.all([aGet(id + ':ref'), aGet(id + ':mine')]);
+  if (id !== st.cur) return;
+  hasRef = !!r; hasMine = !!m;
+  $('#srcLabel').textContent = hasRef ? '원어민 녹음으로 재생돼요' : '기기 음성(TTS)으로 재생돼요';
+  $('#refState').textContent = hasRef
+    ? '✓ 원어민 녹음이 있어요. 재생 단추가 이 음성을 사용해요.'
+    : '아직 원어민 녹음이 없어요. 지금은 기기 음성(TTS)을 사용해요.';
+  $('#delRefBtn').style.visibility = hasRef ? 'visible' : 'hidden';
+  const noTts = ('speechSynthesis' in window) ? !arVoice : true;
+  $('#ttsBanner').hidden = !(noTts && !hasRef);
+  $('#playMineBtn').classList.toggle('dim', !hasMine);
+  $('#compareBtn').classList.toggle('dim', !hasMine);
+}
+
+function render(){
+  const v = cur();
+  $('#refKo').textContent = v.ref;
+  $('#counter').textContent = (idx() + 1) + ' / ' + verses.length;
+  $('#doneBadge').hidden = !v.done;
+  $('#doneBtn').textContent = v.done ? '✓ 암송 완료! (다시 누르면 해제)' : '다 외웠으면 눌러 주세요 ✓';
+  $('#doneBtn').classList.toggle('done', !!v.done);
+  renderArabic();
+  $('#pronText').textContent = v.pron || '';
+  $('#pronText').hidden = !(st.showPron && v.pron);
+  $('#koText').textContent = v.ko || '';
+  $('#koText').hidden = !(st.showKo && v.ko);
+  $('#pronChip').classList.toggle('on', st.showPron);
+  $('#koChip').classList.toggle('on', st.showKo);
+  $$('#speedSegs .seg').forEach(b => b.classList.toggle('on', b.dataset.speed === st.speed));
+  $$('#stageSegs .seg').forEach(b => b.classList.toggle('on', Number(b.dataset.stage) === stage));
+  $('#repeatBtn').classList.toggle('on', st.repeat);
+  refreshAudioFlags();
+  saveS();
+}
+
+function switchTo(id){
+  stopAll();
+  st.cur = id;
+  stage = 0;
+  render();
+}
+
+/* ---------- 구절 목록 ---------- */
+let editingId = null;
+
+function renderList(){
+  const ul = $('#verseList');
+  ul.innerHTML = '';
+  const doneN = verses.filter(v => v.done).length;
+  $('#progress').textContent = '암송 완료 ' + doneN + ' / ' + verses.length;
+  verses.forEach(v => {
+    const li = document.createElement('li');
+    li.className = 'vrow' + (v.id === st.cur ? ' sel' : '');
+    const main = document.createElement('div');
+    main.className = 'vmain';
+    const b = document.createElement('b');
+    b.textContent = v.ref;
+    const badge = document.createElement('span');
+    badge.className = 'vbadge';
+    badge.textContent = v.done ? '✓' : '';
+    const prev = document.createElement('div');
+    prev.className = 'vprev';
+    prev.textContent = v.ko || '';
+    main.append(b, badge, prev);
+    const eb = document.createElement('button');
+    eb.className = 'editBtn';
+    eb.textContent = '고치기';
+    eb.onclick = e => { e.stopPropagation(); openForm(v); };
+    li.append(main, eb);
+    li.onclick = () => { switchTo(v.id); closeList(); };
+    ul.appendChild(li);
+    aGet(v.id + ':ref').then(r => { if (r) badge.textContent = (badge.textContent + ' 🎙').trim(); });
+  });
+}
+function openList(){ renderList(); $('#listView').classList.add('open'); document.body.style.overflow = 'hidden'; }
+function closeList(){ $('#listView').classList.remove('open'); document.body.style.overflow = ''; closeForm(); }
+
+function openForm(v){
+  editingId = v ? v.id : null;
+  $('#formMode').textContent = v ? '구절 고치기 — ' + v.ref : '＋ 새 구절 추가';
+  $('#fRef').value = v ? v.ref : '';
+  $('#fAr').value = v ? v.ar : '';
+  $('#fKo').value = v ? v.ko : '';
+  $('#fPron').value = v ? (v.pron || '') : '';
+  $('#fDel').hidden = !v;
+  $('#addBox').open = true;
+  $('#addBox').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+function closeForm(){
+  editingId = null;
+  $('#formMode').textContent = '＋ 새 구절 추가';
+  $('#verseForm').reset();
+  $('#fDel').hidden = true;
+  $('#addBox').open = false;
+}
+
+/* ---------- 알림 ---------- */
+let toastT;
+function toast(m){
+  const t = $('#toast');
+  t.textContent = m;
+  t.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+/* ---------- 이벤트 연결 ---------- */
+function bind(){
+  $('#prevBtn').onclick = () => switchTo(verses[(idx() - 1 + verses.length) % verses.length].id);
+  $('#nextBtn').onclick = () => switchTo(verses[(idx() + 1) % verses.length].id);
+  $('#playBtn').onclick = () => { playing ? stopAll() : playRef(); };
+  $('#repeatBtn').onclick = () => { st.repeat = !st.repeat; saveS(); $('#repeatBtn').classList.toggle('on', st.repeat); };
+  $$('#speedSegs .seg').forEach(b => b.onclick = () => {
+    st.speed = b.dataset.speed; saveS();
+    $$('#speedSegs .seg').forEach(x => x.classList.toggle('on', x === b));
+    try { if (!player.paused) player.playbackRate = RATE[st.speed].audio; } catch(e){}
+  });
+  $$('#stageSegs .seg').forEach(b => b.onclick = () => {
+    stage = Number(b.dataset.stage);
+    $$('#stageSegs .seg').forEach(x => x.classList.toggle('on', x === b));
+    renderArabic();
+  });
+  $('#pronChip').onclick = () => { st.showPron = !st.showPron; saveS(); render(); };
+  $('#koChip').onclick = () => { st.showKo = !st.showKo; saveS(); render(); };
+  $('#doneBtn').onclick = () => {
+    const v = cur(); v.done = !v.done; saveV(); render();
+    if (v.done) toast('🎉 암송 완료! 대단해요');
+  };
+  $('#recMineBtn').onclick = () => toggleRec('mine', $('#recMineBtn'), '● 녹음');
+  $('#playMineBtn').onclick = playMine;
+  $('#compareBtn').onclick = compare;
+  $('#recRefBtn').onclick = () => toggleRec('ref', $('#recRefBtn'), '● 녹음');
+  $('#fileRefBtn').onclick = () => $('#fileRefInput').click();
+  $('#fileRefInput').onchange = async e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    await aPut(st.cur + ':ref', f);
+    e.target.value = '';
+    toast('원어민 음성 파일을 담았어요');
+    refreshAudioFlags();
+  };
+  $('#delRefBtn').onclick = async () => {
+    if (!confirm('원어민 녹음을 지울까요?')) return;
+    await aDel(st.cur + ':ref');
+    toast('지웠어요');
+    refreshAudioFlags();
+  };
+  $('#openListBtn').onclick = openList;
+  $('#closeListBtn').onclick = closeList;
+  $('#verseForm').onsubmit = e => {
+    e.preventDefault();
+    const ref = $('#fRef').value.trim(), ar = $('#fAr').value.trim();
+    const ko = $('#fKo').value.trim(), pron = $('#fPron').value.trim();
+    if (!ref || !ar) { toast('구절 이름과 아랍어 본문은 꼭 넣어 주세요'); return; }
+    if (editingId) {
+      const v = verses.find(x => x.id === editingId);
+      Object.assign(v, { ref, ar, ko, pron });
+    } else {
+      const id = 'u' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+      verses.push({ id, ref, ar, ko, pron, done:false });
+      st.cur = id;
+    }
+    saveV(); closeForm(); renderList(); render();
+    toast('저장했어요');
+  };
+  $('#fCancel').onclick = closeForm;
+  $('#fDel').onclick = async () => {
+    if (!editingId) return;
+    if (!confirm('이 구절을 삭제할까요? 녹음도 함께 지워져요.')) return;
+    await aDel(editingId + ':ref');
+    await aDel(editingId + ':mine');
+    verses = verses.filter(v => v.id !== editingId);
+    if (!verses.length) verses = DEFAULT_VERSES.map(v => ({ ...v, done:false }));
+    if (!verses.some(v => v.id === st.cur)) st.cur = verses[0].id;
+    saveV(); closeForm(); renderList(); render();
+    toast('삭제했어요');
+  };
+  $('#restoreBtn').onclick = () => {
+    if (!confirm('기본 구절 10개를 되살릴까요? 직접 추가한 구절은 그대로 남아요.')) return;
+    DEFAULT_VERSES.forEach(d => {
+      const ex = verses.find(v => v.id === d.id);
+      if (ex) Object.assign(ex, { ref:d.ref, ar:d.ar, ko:d.ko, pron:d.pron });
+      else verses.push({ ...d, done:false });
+    });
+    saveV(); renderList(); render();
+    toast('기본 구절을 복원했어요');
+  };
+  $('#hintOk').onclick = () => { localStorage.setItem(LS_H, '1'); $('#hint').hidden = true; };
+}
+
+/* ---------- 시작 ---------- */
+(async function init(){
+  loadAll();
+  db = await openDB();
+  if ('speechSynthesis' in window) {
+    refreshVoices();
+    speechSynthesis.onvoiceschanged = refreshVoices;
+  }
+  if (!localStorage.getItem(LS_H)) $('#hint').hidden = false;
+  bind();
+  render();
+})();
+</script>
+</body>
+</html>
