@@ -321,19 +321,19 @@ function renderAll(D, srcName){
   const isWe=D.daily.map(x=>{const g=new Date(x.d).getDay(); return g===0||g===6;});
   mk('dailyChart',{type:'bar',data:{labels:days,datasets:[{data:D.daily.map(x=>x.amt),
     backgroundColor:isWe.map(w=>w?C.accent:C.grey),borderRadius:4}]},
-    options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>won(c.raw)+'원'}}},
+    options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>won(c.raw)+'원'}}},
     scales:{y:{ticks:{callback:v=>(v/10000)+'만'}},x:{ticks:{maxRotation:0,autoSkip:true,maxTicksLimit:14}}}}});
 
   mk('weekdayChart',{type:'bar',data:{labels:WK,datasets:[{data:WK.map(k=>D.weekday[k]||0),
     backgroundColor:WK.map(k=>(k==='토'||k==='일')?C.accent:C.grey),borderRadius:5}]},
-    options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>won(c.raw)+'원'}}},
+    options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>won(c.raw)+'원'}}},
     scales:{y:{ticks:{callback:v=>(v/10000)+'만'}}}}});
 
   const hrs=Object.keys(D.hour).map(Number).sort((a,b)=>a-b);
   const hmax=Math.max(...hrs.map(h=>D.hour[h]),1);
   mk('hourChart',{type:'bar',data:{labels:hrs.map(h=>h+'시'),datasets:[{data:hrs.map(h=>D.hour[h]),
     backgroundColor:hrs.map(h=>D.hour[h]>=hmax*0.5?C.warn:C.grey),borderRadius:5}]},
-    options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>won(c.raw)+'원'}}},
+    options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>won(c.raw)+'원'}}},
     scales:{y:{ticks:{callback:v=>(v/10000)+'만'}}}}});
 
   renderHeat(D, hrs);
@@ -342,19 +342,19 @@ function renderAll(D, srcName){
   const catK=Object.keys(D.cat||{}).filter(k=>D.cat[k][1]>0);
   mk('catChart',{type:'doughnut',data:{labels:catK,datasets:[{data:catK.map(k=>D.cat[k][1]),
     backgroundColor:['#3C6D71','#4A8A8F','#7BA9AC','#A8C5C7','#cdd6d5','#e6e4e0','#b9c2c2']}]},
-    options:{cutout:'58%',plugins:{legend:{position:'right',labels:{boxWidth:12,font:{size:11}}},
+    options:{maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{boxWidth:12,font:{size:11}}},
       tooltip:{callbacks:{label:c=>c.label+' '+won(c.raw)+'원'}}}}});
 
   const payK=Object.keys(D.pay||{}).filter(k=>D.pay[k]>0);
   mk('payChart',{type:'doughnut',data:{labels:payK,datasets:[{data:payK.map(k=>D.pay[k]),
     backgroundColor:['#3C6D71','#C2774E','#4A8A8F','#cdd6d5','#A8C5C7']}]},
-    options:{cutout:'58%',plugins:{legend:{position:'right',labels:{boxWidth:12,font:{size:11}}},
+    options:{maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{boxWidth:12,font:{size:11}}},
       tooltip:{callbacks:{label:c=>c.label+' '+won(c.raw)+'원'}}}}});
 
   const cardK=Object.keys(D.card||{}).filter(k=>D.card[k]>0).sort((a,b)=>D.card[b]-D.card[a]);
   mk('cardChart',{type:'bar',data:{labels:cardK,datasets:[{data:cardK.map(k=>D.card[k]),
     backgroundColor:C.light,borderRadius:4}]},
-    options:{indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>won(c.raw)+'원'}}},
+    options:{maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>won(c.raw)+'원'}}},
     scales:{x:{ticks:{callback:v=>(v/10000)+'만'}},y:{ticks:{font:{size:11}}}}}});
 }
 
