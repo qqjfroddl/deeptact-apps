@@ -6,7 +6,7 @@
     "category": "강의 도구",
     "status": "live",
     "pinned": true,
-    "url": "https://ai-level-survey-ebon.vercel.app/admin?k=deeptact",
+    "url": "https://ai-level-survey-ebon.vercel.app/admin?k=als-7c4c555661b24a8957952525",
     "description": "강의 현장에서 QR로 5단계 자가진단 → 실시간 막대·도넛 대시보드"
   },
   {
@@ -96,7 +96,7 @@
     "category": "강의 도구",
     "status": "live",
     "pinned": true,
-    "url": "https://time-life-survey.vercel.app/admin/courses?k=deeptact",
+    "url": "https://time-life-survey.vercel.app/admin/courses?k=tls-3f713c94f942d26d2f095b9f",
     "description": "표준 풀에서 문항 골라 강의별 설문 구성 — 익명 응답·실시간 분포·다른 과정과 비교"
   },
   {
