@@ -1,5 +1,15 @@
 [
   {
+    "repo": "deeptact-edu-board",
+    "code": "BOARD",
+    "name": "교육 소감 보드",
+    "category": "강의 도구",
+    "status": "live",
+    "pinned": true,
+    "url": "https://deeptact-edu-board.vercel.app/admin",
+    "description": "패들렛식 실시간 소감 보드 — QR로 익명 참여, 열 구성·관리 모드·CSV 예정"
+  },
+  {
     "repo": "ai-level-survey",
     "code": "AILS",
     "name": "AI 활용 레벨 진단",
