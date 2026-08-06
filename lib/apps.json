@@ -2,12 +2,12 @@
   {
     "repo": "deeptact-edu-board",
     "code": "BOARD",
-    "name": "교육 소감 보드",
+    "name": "딥택트 클래스보드",
     "category": "강의 도구",
     "status": "live",
     "pinned": true,
     "url": "https://deeptact-edu-board.vercel.app/admin",
-    "description": "패들렛식 실시간 소감 보드 — QR로 익명 참여, 열 구성·관리 모드·CSV 예정"
+    "description": "수업 참여 활동을 한곳에 — 패들렛식 소감 보드, QR 참여, 복습 퀴즈 개발 중"
   },
   {
     "repo": "ai-level-survey",
