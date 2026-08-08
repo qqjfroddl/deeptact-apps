@@ -1,0 +1,20 @@
+{
+  "server_url": "https://deeptact-apps.vercel.app",
+  "agent_key": "CHANGE_ME_SAME_AS_VERCEL_MORNING_AGENT_KEY",
+  "poll_interval_sec": 8,
+  "naver_email": "yourid@naver.com",
+  "naver_app_password": "NAVER_APP_PASSWORD",
+  "smtp_host": "smtp.naver.com",
+  "smtp_port": 465,
+  "kakao_window_title_regex": ".*카카오톡.*",
+  "individual_delay_min_sec": 2.5,
+  "individual_delay_max_sec": 5.0,
+  "group_break_min_sec": 30,
+  "group_break_max_sec": 60,
+  "fallback_positions": {
+    "friend_tab": null,
+    "search_box": null,
+    "first_result": null,
+    "message_box": null
+  }
+}
