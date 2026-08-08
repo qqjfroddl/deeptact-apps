@@ -140,6 +140,16 @@
     "description": "POS 매출리포트 엑셀·CSV를 올리면 매출·시간대·메뉴·결제를 자동 분석 (매장 사장님용)"
   },
   {
+    "repo": "morning-sender",
+    "code": "MORN",
+    "name": "아침 콘텐츠 통합 발송",
+    "category": "실무 도구",
+    "status": "live",
+    "pinned": true,
+    "url": "https://deeptact-apps.vercel.app/morning-sender",
+    "description": "5분 리프레시·크리스찬 말씀을 카카오톡 8개 그룹과 네이버 메일로 통합 발송"
+  },
+  {
     "repo": "arabic-bible-memorizer",
     "code": "ABM",
     "name": "아랍어 말씀 암송",
