@@ -148,5 +148,15 @@
     "pinned": true,
     "url": "https://deeptact-apps.vercel.app/arabic-bible-memorizer/",
     "description": "아랍어 성경 구절을 듣고 따라 읽고 가려 가며 암송하는 선교사님용 학습 앱"
+  },
+  {
+    "repo": "english-word-learning-app",
+    "code": "EWL",
+    "name": "영어 단어 학습 앱",
+    "category": "학습 도구",
+    "status": "live",
+    "pinned": false,
+    "url": "https://english-word-learning-app-three.vercel.app/",
+    "description": "영어 단어의 뜻·발음·예문을 저장하고 카드 학습과 세 가지 퀴즈로 복습하는 모바일 단어장"
   }
 ]
