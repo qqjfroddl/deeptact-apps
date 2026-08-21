@@ -171,12 +171,12 @@
   },
   {
     "repo": "deeptact-tax-invoice",
-    "code": "TAX",
-    "name": "세금계산서 발행",
+    "code": "PJT",
+    "name": "딥택트러닝 프로젝트관리",
     "category": "실무 도구",
     "status": "live",
     "pinned": false,
     "url": "https://deeptact-tax-invoice.vercel.app/",
-    "description": "매출시트 ★계산서(발행) 대기 건을 볼타(bolta.io) API로 전자세금계산서 발행하고 시트에 기록. 클로드코드용 MCP 서버 포함"
+    "description": "캘린더 확정 강의를 원장에 등록하고, 계산서 발행·입금 대조·거래처·매출 대시보드까지 한 곳에서. 매출 원장은 구글시트가 정본."
   }
 ]
