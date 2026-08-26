@@ -4,3 +4,4 @@ desktop.ini
 .env.local
 .env*.local
 *.log
+agent/agent_config.json
