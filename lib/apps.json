@@ -32,12 +32,12 @@
   {
     "repo": "deeptact-pre-survey",
     "code": "PRES",
-    "name": "사전 진단 설문",
+    "name": "딥택트 설문",
     "category": "강의 도구",
     "status": "live",
     "pinned": true,
     "url": "https://deeptact-pre-survey.vercel.app/admin",
-    "description": "교육 전 학습자 AI 활용 사전 진단 — 과정별 문항 편집, 응답 수집, 단계 분포·주관식·CSV 분석"
+    "description": "교육 전 사전 진단 + 교육 후 만족도 — 과정별 문항 편집, 응답 수집, 단계·만족도·NPS·CSV 분석"
   },
   {
     "repo": "lecture-mailer",
