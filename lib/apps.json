@@ -30,6 +30,16 @@
     "description": "강의 현장에서 QR로 5단계 자가진단 → 실시간 막대·도넛 대시보드"
   },
   {
+    "repo": "deeptact-pre-survey",
+    "code": "PRES",
+    "name": "사전 진단 설문",
+    "category": "강의 도구",
+    "status": "live",
+    "pinned": true,
+    "url": "https://deeptact-pre-survey.vercel.app/admin",
+    "description": "교육 전 학습자 AI 활용 사전 진단 — 과정별 문항 편집, 응답 수집, 단계 분포·주관식·CSV 분석"
+  },
+  {
     "repo": "lecture-mailer",
     "code": "LMAIL",
     "name": "강의 메일 자동화",
