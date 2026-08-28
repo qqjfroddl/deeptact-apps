@@ -44,7 +44,7 @@
     "code": "ORDER",
     "name": "클래스오더",
     "category": "강의 도구",
-    "status": "wip",
+    "status": "live",
     "pinned": true,
     "url": "https://class-order.vercel.app/dashboard",
     "description": "클래스별 음료·식사 메뉴판을 만들고 QR·링크로 주문을 받아 메뉴별 수량 집계와 CSV까지 — 담당자는 구글 로그인 후 승인, 학습자는 로그인 없이 제출"
