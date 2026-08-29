@@ -46,7 +46,7 @@
     "category": "모임 도구",
     "status": "live",
     "pinned": true,
-    "url": "https://class-order.vercel.app/dashboard",
+    "url": "https://class-order.vercel.app/pickboard",
     "description": "모임과 조직의 실명 선택을 링크·QR로 받고 항목별 집계와 CSV까지 — 메뉴 주문·참석 여부·선호안·역할 선택 템플릿 제공"
   },
   {
