@@ -24,7 +24,8 @@ check("이미지 편집", includes("insertLocalImage") && includes("setImageWidt
 check("슬라이드 편집", includes("detectSlides") && includes("moveSlideTo") && includes("deleteSlide"));
 check("앱 안 사용방법", includes("처음 사용하는 분을 위한 안내") && includes("1분 빠른 시작"));
 check("연습용 문서", includes("연습용 문서 열기") && includes("loadSample"));
-check("스크립트 실행 차단", /<iframe[^>]+sandbox="allow-same-origin"(?![^>]*allow-scripts)/.test(html));
+check("원본 스크립트 실행 미리보기", /<iframe[^>]+sandbox="allow-scripts allow-same-origin"[^>]+credentialless/.test(html));
+check("실행 DOM과 저장 원본 분리", includes("state.sourceDoc") && includes("sourceNode") && includes("serializeDocument"));
 check("편집 흔적 제거", includes("stripEditorArtifacts") && includes("data-dt-editor-"));
 check("구 소유자 문구 없음", !/실꾸답|Silkkudap/i.test(html));
 check("구 라이브러리 미사용", !/Sortable(?:JS)?/i.test(html));
