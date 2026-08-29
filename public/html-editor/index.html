@@ -79,8 +79,8 @@
     .size-readout { min-width: 55px; color: var(--ink); font-variant-numeric: tabular-nums; text-align: center; }
     .menu { position: relative; }
     .menu-panel {
-      position: absolute; top: calc(100% + 7px); left: 0; z-index: 60; min-width: 220px; display: none;
-      padding: 7px; border: 1px solid var(--line); border-radius: var(--radius-md); background: #fff; box-shadow: var(--shadow);
+      position: fixed; top: 0; left: 0; z-index: 100; width: min(240px, calc(100vw - 16px)); max-height: calc(100vh - 16px); display: none;
+      padding: 7px; overflow-y: auto; border: 1px solid var(--line); border-radius: var(--radius-md); background: #fff; box-shadow: var(--shadow);
     }
     .menu.open .menu-panel { display: grid; gap: 3px; }
     .menu-panel button {
@@ -239,7 +239,7 @@
       <h3>문제가 생겼을 때</h3><ul><li>이미지·글꼴이 빠져 보이면 저장 후 원래 폴더에서 다시 확인합니다.</li><li>끌어 이동되지 않으면 위·아래 화살표 버튼을 사용합니다.</li><li>잘못 바꿨다면 실행취소를 누릅니다.</li><li>브라우저를 닫기 전에 `저장되지 않은 변경` 배지가 없는지 확인합니다.</li></ul>
     </div>
   </aside>
-  <dialog id="aboutDialog"><div class="dialog-head"><h2>앱 정보</h2><button class="btn icon" id="aboutCloseButton" type="button" aria-label="앱 정보 닫기">×</button></div><div class="dialog-body"><p><strong>강의 HTML 편집기 V2</strong>는 코드를 몰라도 강의용 HTML을 수정할 수 있도록 딥택트러닝이 독립적으로 설계하고 개발한 도구입니다.</p><dl><dt>버전</dt><dd>2.1</dd><dt>제작·운영</dt><dd>딥택트러닝</dd><dt>파일 처리</dt><dd>편집기 서버 업로드 없음·문서 스크립트 실행</dd><dt>권장 환경</dt><dd>최신 Chrome 또는 Edge 데스크톱</dd></dl></div></dialog>
+  <dialog id="aboutDialog"><div class="dialog-head"><h2>앱 정보</h2><button class="btn icon" id="aboutCloseButton" type="button" aria-label="앱 정보 닫기">×</button></div><div class="dialog-body"><p><strong>강의 HTML 편집기 V2</strong>는 코드를 몰라도 강의용 HTML을 수정할 수 있도록 딥택트러닝이 독립적으로 설계하고 개발한 도구입니다.</p><dl><dt>버전</dt><dd>2.1.1</dd><dt>제작·운영</dt><dd>딥택트러닝</dd><dt>파일 처리</dt><dd>편집기 서버 업로드 없음·문서 스크립트 실행</dd><dt>권장 환경</dt><dd>최신 Chrome 또는 Edge 데스크톱</dd></dl></div></dialog>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <input id="fileInput" type="file" accept=".html,.htm,text/html" hidden><input id="imageInput" type="file" accept="image/*" hidden>
   <script>
@@ -276,7 +276,15 @@
     }
     function updateHistoryButtons(){ el("undoButton").disabled=state.undo.length===0; el("redoButton").disabled=state.redo.length===0; }
     function closeMenus(){ document.querySelectorAll(".menu.open").forEach(menu=>{menu.classList.remove("open"); menu.querySelector("[aria-expanded]")?.setAttribute("aria-expanded","false");}); }
-    function toggleMenu(menuId,buttonId){ const menu=el(menuId),button=el(buttonId),willOpen=!menu.classList.contains("open"); closeMenus(); menu.classList.toggle("open",willOpen); button.setAttribute("aria-expanded",String(willOpen)); }
+    function positionMenu(menu,button){
+      const panel=menu.querySelector(".menu-panel"),buttonRect=button.getBoundingClientRect(),margin=8,gap=7;
+      const panelRect=panel.getBoundingClientRect(),left=Math.max(margin,Math.min(buttonRect.left,window.innerWidth-panelRect.width-margin));
+      const below=buttonRect.bottom+gap,above=buttonRect.top-panelRect.height-gap;
+      const top=below+panelRect.height<=window.innerHeight-margin?below:Math.max(margin,above);
+      panel.style.left=`${left}px`;panel.style.top=`${top}px`;
+    }
+    function repositionOpenMenu(){const menu=document.querySelector(".menu.open");if(!menu)return;const button=menu.querySelector("[aria-expanded]");if(button)positionMenu(menu,button);}
+    function toggleMenu(menuId,buttonId){ const menu=el(menuId),button=el(buttonId),willOpen=!menu.classList.contains("open"); closeMenus(); menu.classList.toggle("open",willOpen); button.setAttribute("aria-expanded",String(willOpen)); if(willOpen)positionMenu(menu,button); }
     function detectDoctype(markup){ return markup.match(/<!doctype[^>]*>/i)?.[0]||"<!doctype html>"; }
     function hasRelativeResources(markup){ return /<(?:link|img|script)\b[^>]*(?:href|src)\s*=\s*["'](?!https?:|data:|blob:|#|\/\/)/i.test(markup); }
     function hasScripts(markup){ return /<script\b/i.test(markup); }
@@ -428,7 +436,7 @@
     el("fileInput").addEventListener("change",event=>{readPickedFile(event.target.files[0],null);event.target.value="";});el("imageInput").addEventListener("change",event=>{insertLocalImage(event.target.files[0]);event.target.value="";});
     ["dragenter","dragover"].forEach(type=>dropCard.addEventListener(type,event=>{event.preventDefault();dropCard.classList.add("dragging");}));["dragleave","drop"].forEach(type=>dropCard.addEventListener(type,event=>{event.preventDefault();dropCard.classList.remove("dragging");}));dropCard.addEventListener("drop",event=>readPickedFile(event.dataTransfer.files[0],null));
     el("helpButton").addEventListener("click",openHelp);el("helpCloseButton").addEventListener("click",closeHelp);el("drawerBackdrop").addEventListener("click",closeHelp);el("aboutButton").addEventListener("click",()=>el("aboutDialog").showModal());el("aboutCloseButton").addEventListener("click",()=>el("aboutDialog").close());el("aboutDialog").addEventListener("click",event=>{if(event.target===el("aboutDialog"))el("aboutDialog").close();});
-    document.addEventListener("click",event=>{if(!event.target.closest(".menu"))closeMenus();});document.addEventListener("keydown",event=>{if(event.key==="Escape"&&el("helpDrawer").classList.contains("open")){event.preventDefault();closeHelp();return;}handleDocumentShortcut(event);});window.addEventListener("beforeunload",event=>{if(!state.dirty)return;event.preventDefault();event.returnValue="";});
+    document.addEventListener("click",event=>{if(!event.target.closest(".menu"))closeMenus();});document.addEventListener("keydown",event=>{if(event.key==="Escape"&&el("helpDrawer").classList.contains("open")){event.preventDefault();closeHelp();return;}handleDocumentShortcut(event);});window.addEventListener("resize",repositionOpenMenu);window.addEventListener("scroll",repositionOpenMenu,true);window.addEventListener("beforeunload",event=>{if(!state.dirty)return;event.preventDefault();event.returnValue="";});
     updateFileState();updateHistoryButtons();
   })();
   </script>
