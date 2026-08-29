@@ -1,0 +1,56 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+
+const file = resolve("public/html-editor/index.html");
+const html = readFileSync(file, "utf8");
+
+const checks = [];
+const check = (name, condition) => checks.push({ name, ok: Boolean(condition) });
+const includes = text => html.includes(text);
+
+check("딥택트러닝 제목", includes("강의 HTML 편집기 | 딥택트러닝"));
+check("Paperlogy 정본 CSS", includes("https://deeptactlearning-fonts.netlify.app/fonts.css"));
+check("딥택트 색상", includes("--primary: #2E3142") && includes("--accent: #3C6D71") && includes("--surface: #F2F1EF"));
+check("한국어 줄바꿈", includes("word-break: keep-all"));
+check("모바일 규칙", includes("@media (max-width: 620px)"));
+check("파일 열기", includes("showOpenFilePicker") && includes("fileInput"));
+check("새 파일 저장", includes("downloadFile") && includes(".edited.html"));
+check("원본 저장", includes("createWritable") && includes("overwriteFile"));
+check("글자 크기", includes("fontSmallerButton") && includes("fontLargerButton") && includes("setFontSize"));
+check("글꼴 5종", ["original", "paperlogy", "sans", "serif", "mono"].every(value => includes(`value="${value}"`)));
+check("글꼴 원복", includes("removeProperty(\"font-family\")"));
+check("실행취소·다시실행", includes("function undo()") && includes("function redo()") && includes("state.undo"));
+check("이미지 편집", includes("insertLocalImage") && includes("setImageWidth") && includes("toggleImageCenter"));
+check("슬라이드 편집", includes("detectSlides") && includes("moveSlideTo") && includes("deleteSlide"));
+check("앱 안 사용방법", includes("처음 사용하는 분을 위한 안내") && includes("1분 빠른 시작"));
+check("연습용 문서", includes("연습용 문서 열기") && includes("loadSample"));
+check("스크립트 실행 차단", /<iframe[^>]+sandbox="allow-same-origin"(?![^>]*allow-scripts)/.test(html));
+check("편집 흔적 제거", includes("stripEditorArtifacts") && includes("data-dt-editor-"));
+check("구 소유자 문구 없음", !/실꾸답|Silkkudap/i.test(html));
+check("구 라이브러리 미사용", !/Sortable(?:JS)?/i.test(html));
+
+const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map(match => match[1]);
+const duplicateIds = ids.filter((id, index) => ids.indexOf(id) !== index);
+check("중복 ID 없음", duplicateIds.length === 0);
+
+const scripts = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].map(match => match[1]);
+check("인라인 앱 스크립트 1개", scripts.length === 1);
+if (scripts.length === 1) {
+  try {
+    new Function(scripts[0]);
+    check("JavaScript 문법", true);
+  } catch (error) {
+    check(`JavaScript 문법: ${error.message}`, false);
+  }
+}
+
+const failed = checks.filter(item => !item.ok);
+for (const item of checks) console.log(`${item.ok ? "PASS" : "FAIL"} | ${item.name}`);
+if (duplicateIds.length) console.log(`중복 ID: ${duplicateIds.join(", ")}`);
+
+if (failed.length) {
+  console.error(`\n${failed.length}개 검사가 실패했습니다.`);
+  process.exit(1);
+}
+
+console.log(`\nHTML 편집기 정적 검사 ${checks.length}개 통과`);
