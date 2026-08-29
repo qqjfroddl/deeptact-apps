@@ -41,13 +41,13 @@
   },
   {
     "repo": "class-order",
-    "code": "ORDER",
-    "name": "클래스오더",
-    "category": "강의 도구",
+    "code": "PICK",
+    "name": "픽보드",
+    "category": "모임 도구",
     "status": "live",
     "pinned": true,
     "url": "https://class-order.vercel.app/dashboard",
-    "description": "클래스별 음료·식사 메뉴판을 만들고 QR·링크로 주문을 받아 메뉴별 수량 집계와 CSV까지 — 담당자는 구글 로그인 후 승인, 학습자는 로그인 없이 제출"
+    "description": "모임과 조직의 실명 선택을 링크·QR로 받고 항목별 집계와 CSV까지 — 메뉴 주문·참석 여부·선호안·역할 선택 템플릿 제공"
   },
   {
     "repo": "lecture-mailer",
