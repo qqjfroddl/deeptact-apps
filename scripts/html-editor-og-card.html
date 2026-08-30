@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://deeptactlearning-fonts.netlify.app/fonts.css">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { width: 1200px; height: 630px; margin: 0; overflow: hidden; }
+    body {
+      position: relative;
+      display: grid;
+      place-items: center;
+      color: #F2F1EF;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(86, 151, 155, .30), transparent 27%),
+        radial-gradient(circle at 84% 82%, rgba(60, 109, 113, .34), transparent 29%),
+        linear-gradient(135deg, #252837 0%, #2E3142 56%, #242733 100%);
+      font-family: "Paperlogy 5 Medium", "Paperlogy 5Medium", Paperlogy, sans-serif;
+      word-break: keep-all;
+    }
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: .13;
+      background-image:
+        linear-gradient(rgba(255,255,255,.11) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.11) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(to bottom, #000, transparent 78%);
+    }
+    .edge-code {
+      position: absolute;
+      color: rgba(205, 224, 225, .18);
+      font-family: Consolas, monospace;
+      font-size: 24px;
+      line-height: 1.8;
+      letter-spacing: .04em;
+    }
+    .edge-code.left { left: 44px; top: 88px; transform: rotate(-4deg); }
+    .edge-code.right { right: 44px; bottom: 72px; text-align: right; transform: rotate(4deg); }
+    .card {
+      position: relative;
+      z-index: 1;
+      width: 760px;
+      min-height: 516px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 52px 58px 46px;
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 34px;
+      background: rgba(255,255,255,.075);
+      box-shadow: 0 28px 80px rgba(8, 12, 24, .34), inset 0 1px 0 rgba(255,255,255,.12);
+      backdrop-filter: blur(12px);
+      text-align: center;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      margin-bottom: 25px;
+      color: #CDE0E1;
+      font-size: 17px;
+      letter-spacing: .16em;
+    }
+    .brand-mark {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(205,224,225,.32);
+      border-radius: 13px;
+      background: rgba(60,109,113,.34);
+    }
+    .brand-mark svg { width: 25px; height: 25px; }
+    h1 {
+      margin: 0;
+      font-family: "Paperlogy 7 Bold", "Paperlogy 7Bold", Paperlogy, sans-serif;
+      font-size: 67px;
+      line-height: 1.08;
+      letter-spacing: -.045em;
+    }
+    .subtitle {
+      margin: 22px 0 0;
+      color: #D9E2E3;
+      font-size: 25px;
+      line-height: 1.45;
+      letter-spacing: -.018em;
+    }
+    .subtitle strong { color: #FFFFFF; font-family: "Paperlogy 7 Bold", Paperlogy, sans-serif; }
+    .features {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 31px;
+    }
+    .feature {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 16px;
+      border: 1px solid rgba(205,224,225,.18);
+      border-radius: 999px;
+      color: #E8EEEE;
+      background: rgba(10, 19, 28, .22);
+      font-size: 16px;
+      white-space: nowrap;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #79ADB0; box-shadow: 0 0 16px rgba(121,173,176,.8); }
+    .footer {
+      position: absolute;
+      bottom: 18px;
+      left: 0;
+      right: 0;
+      color: rgba(242,241,239,.48);
+      font-size: 14px;
+      letter-spacing: .08em;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="edge-code left">&lt;section&gt;<br>&nbsp;&nbsp;&lt;h1&gt;<br>&nbsp;&nbsp;&lt;img /&gt;</div>
+  <div class="edge-code right">style="..."<br>&lt;/main&gt;<br>&lt;/html&gt;</div>
+  <main class="card">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 28 28" fill="none"><path d="M9 7 3 14l6 7M19 7l6 7-6 7M17 4l-6 20" stroke="#CDE0E1" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      DEEPTACT LEARNING
+    </div>
+    <h1>강의 HTML 편집기</h1>
+    <p class="subtitle">코드를 몰라도 <strong>클릭해서 고치고</strong><br>다시 HTML로 저장하세요</p>
+    <div class="features" aria-label="주요 기능">
+      <span class="feature"><span class="dot"></span>글자·이미지 수정</span>
+      <span class="feature"><span class="dot"></span>슬라이드 순서</span>
+      <span class="feature"><span class="dot"></span>HTML 저장</span>
+    </div>
+  </main>
+  <div class="footer">DEEPTACTLEARNING.COM · PRACTICAL AI EDUCATION</div>
+</body>
+</html>

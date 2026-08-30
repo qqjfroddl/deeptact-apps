@@ -1,7 +1,8 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const file = resolve("public/html-editor/index.html");
+const ogImageFile = resolve("public/html-editor/html-editor-og.png");
 const html = readFileSync(file, "utf8");
 
 const checks = [];
@@ -9,6 +10,18 @@ const check = (name, condition) => checks.push({ name, ok: Boolean(condition) })
 const includes = text => html.includes(text);
 
 check("딥택트러닝 제목", includes("강의 HTML 편집기 | 딥택트러닝"));
+check("공유 메타 제목·설명", includes('property="og:title"') && includes('property="og:description"'));
+check("공유 메타 절대 URL", includes('property="og:image" content="https://deeptact-apps.vercel.app/html-editor/html-editor-og.png?v=20260831"'));
+check("카카오·노션 이미지 크기", includes('property="og:image:width" content="1200"') && includes('property="og:image:height" content="630"'));
+check("Twitter 대형 카드", includes('name="twitter:card" content="summary_large_image"'));
+check("공유 이미지 파일", existsSync(ogImageFile));
+if (existsSync(ogImageFile)) {
+  const ogImage = readFileSync(ogImageFile);
+  const isPng = ogImage.subarray(1, 4).toString("ascii") === "PNG";
+  const width = isPng ? ogImage.readUInt32BE(16) : 0;
+  const height = isPng ? ogImage.readUInt32BE(20) : 0;
+  check("공유 이미지 1200×630 PNG", isPng && width === 1200 && height === 630);
+}
 check("Paperlogy 정본 CSS", includes("https://deeptactlearning-fonts.netlify.app/fonts.css"));
 check("딥택트 색상", includes("--primary: #2E3142") && includes("--accent: #3C6D71") && includes("--surface: #F2F1EF"));
 check("한국어 줄바꿈", includes("word-break: keep-all"));
