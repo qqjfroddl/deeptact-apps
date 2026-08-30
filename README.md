@@ -83,7 +83,7 @@ git push -u origin main
 
 ---
 
-## ✏️ 강의 HTML 편집기 V2
+## ✏️ HTML 편집기 V2
 
 - 운영 주소: `https://deeptact-apps.vercel.app/html-editor`
 - 정본: `public/html-editor/index.html`

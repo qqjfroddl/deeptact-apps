@@ -152,7 +152,7 @@
   {
     "repo": "html-editor",
     "code": "HTMLE",
-    "name": "강의 HTML 편집기",
+    "name": "HTML 편집기",
     "category": "강의 도구",
     "status": "live",
     "pinned": true,
