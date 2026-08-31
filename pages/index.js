@@ -10,6 +10,7 @@ import EditDialog from "../components/EditDialog";
 import CategoryManager from "../components/CategoryManager";
 import {
   loadEditState,
+  restoreDeletedReposOnce,
   saveEdits,
   saveCustom,
   saveCategories,
@@ -79,7 +80,12 @@ export default function Home({ apps: baselineApps }) {
   const [catManagerOpen, setCatManagerOpen] = useState(false);
 
   useEffect(() => {
-    setEditState(loadEditState());
+    const loaded = loadEditState();
+    setEditState(
+      restoreDeletedReposOnce(loaded, "restore-classboard-v1-20260831", [
+        "deeptact-edu-board",
+      ])
+    );
   }, []);
 
   // 모든 머지된 앱 (baseline ⊕ overrides ⊕ deleted ⊕ custom)
