@@ -309,7 +309,16 @@
     function renderSourceMarkup(){return state.doctype+"\n"+state.sourceDoc.documentElement.outerHTML;}
     function renderMarkup(markup,options={}){
       prepareSource(markup); state.selected=null; state.editing=false;
-      preview.onload=()=>{ preview.onload=null; try{ attachEditingSurface(); options.afterLoad?.(); }catch(error){ setStatus("이 HTML은 현재 편집기에서 열 수 없습니다."); showToast("편집 화면을 준비하지 못했습니다: "+error.message,true); } };
+      let firstLoad=true;
+      preview.onload=()=>{ try{
+        if(!firstLoad && preview.contentDocument?.documentElement){
+          prepareSource(preview.contentDocument.documentElement.outerHTML);
+          state.selected=null; state.editing=false;
+        }
+        attachEditingSurface();
+        if(firstLoad) options.afterLoad?.();
+        firstLoad=false;
+      }catch(error){ setStatus("HTML 편집 화면을 준비하지 못했습니다."); showToast("편집 화면을 준비하지 못했습니다: "+error.message,true); } };
       preview.srcdoc=renderSourceMarkup(); preview.hidden=false; emptyState.hidden=true;
     }
     function openMarkup(markup,name,handle=null){
@@ -354,7 +363,12 @@
       state.selected=node; node.setAttribute(TEMP_PREFIX+"selected",""); selectionTools.hidden=false; textTools.hidden=!isTextElement(node); imageTools.hidden=node.tagName!=="IMG";
       el("editTextButton").disabled=!isTextElement(node); selectionLabel.textContent=elementLabel(node)+" 선택됨"; refreshContextControls();
     }
-    function onPreviewClick(event){ if(state.editing&&state.selected?.contains(event.target))return; event.preventDefault();event.stopImmediatePropagation();selectElement(pickEditableBlock(event.target)); }
+    function onPreviewClick(event){
+      if(state.editing&&state.selected?.contains(event.target))return;
+      const interactive=event.target.closest?.("a[href],button,[role=button],input,select,textarea");
+      if(interactive&&!state.editing)return;
+      event.preventDefault();event.stopImmediatePropagation();selectElement(pickEditableBlock(event.target));
+    }
     function onPreviewDoubleClick(event){ event.preventDefault();event.stopImmediatePropagation();const block=pickEditableBlock(event.target);if(!block)return;selectElement(block);startTextEdit(); }
     function startTextEdit(){
       if(!isTextElement(state.selected)||state.editing)return; state.editBefore=serializeDocument();state.editing=true;state.selected.setAttribute("contenteditable","true");state.selected.setAttribute(TEMP_PREFIX+"editing","");state.selected.focus();selectionLabel.textContent=elementLabel(state.selected)+" 편집 중";setStatus("글자를 수정한 뒤 다른 곳을 클릭하거나 Esc를 누르세요.");
