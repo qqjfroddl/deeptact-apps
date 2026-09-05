@@ -199,5 +199,15 @@
     "pinned": false,
     "url": "https://deeptact-tax-invoice.vercel.app/",
     "description": "캘린더 확정 강의를 원장에 등록하고, 계산서 발행·입금 대조·거래처·매출 대시보드까지 한 곳에서. 매출 원장은 구글시트가 정본."
+  },
+  {
+    "repo": "parksojang-site",
+    "code": "PSJ",
+    "name": "박소장 홈페이지 관리자",
+    "category": "실무 도구",
+    "status": "live",
+    "pinned": true,
+    "url": "https://www.parksojang.com/admin",
+    "description": "parksojang.com 칼럼 글과 이미지를 직접 올리고 고치는 관리자 화면 — 마크다운 한 판 편집, 이미지 업로드, 게시 즉시 반영"
   }
 ]
