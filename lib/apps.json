@@ -209,5 +209,15 @@
     "pinned": true,
     "url": "https://www.parksojang.com/admin",
     "description": "parksojang.com 칼럼 글과 이미지를 직접 올리고 고치는 관리자 화면 — 마크다운 한 판 편집, 이미지 업로드, 게시 즉시 반영"
+  },
+  {
+    "repo": "gonggong-api",
+    "code": "GONG",
+    "name": "공공데이터 앱 아이디어 갤러리",
+    "category": "참고 자료",
+    "status": "live",
+    "pinned": false,
+    "url": "https://gonggong-api.vercel.app/",
+    "description": "공공데이터로 만들 수 있는 앱 아이디어 30가지를 난이도·분야·검색으로 모아 둔 갤러리 — 외부에서 공유받은 참고 자료"
   }
 ]
