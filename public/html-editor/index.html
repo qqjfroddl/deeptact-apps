@@ -223,14 +223,6 @@
       <div class="tool-group"><span class="tool-label">기록</span><button class="btn icon" id="undoButton" type="button" title="실행취소 (Ctrl+Z)" aria-label="실행취소" disabled>↶</button><button class="btn icon" id="redoButton" type="button" title="다시실행 (Ctrl+Y)" aria-label="다시실행" disabled>↷</button></div>
       <div class="tool-group" id="selectionTools" hidden>
         <span class="tool-label">선택 요소</span><button class="btn" id="editTextButton" type="button">텍스트 편집</button>
-        <button class="btn icon" id="moveUpButton" type="button" title="한 칸 위로" aria-label="선택 요소를 한 칸 위로">↑</button><button class="btn icon" id="moveDownButton" type="button" title="한 칸 아래로" aria-label="선택 요소를 한 칸 아래로">↓</button><button class="btn" id="duplicateButton" type="button">복제</button>
-        <div class="menu" id="insertMenu"><button class="btn" id="insertMenuButton" type="button" aria-expanded="false">추가 ▾</button><div class="menu-panel" role="menu">
-          <div class="menu-heading">선택한 요소 아래에 추가</div><button type="button" data-insert="h2">큰 제목 <small>H2</small></button><button type="button" data-insert="h3">작은 제목 <small>H3</small></button><button type="button" data-insert="p">문단</button><button type="button" data-insert="ul">글머리표 목록</button><button type="button" data-insert="image-file">내 이미지</button><button type="button" data-insert="hr">구분선</button><div class="menu-divider"></div><div class="menu-heading">고급 기능</div><button type="button" data-insert="image-url">이미지 주소로 추가</button>
-        </div></div><button class="btn danger" id="deleteButton" type="button">삭제</button>
-      </div>
-      <div class="tool-group" id="textTools" hidden>
-        <span class="tool-label">글자</span><button class="btn icon" id="fontSmallerButton" type="button" title="글자 2px 작게" aria-label="글자 작게">−</button><span class="size-readout" id="fontSizeReadout">16px</span><button class="btn icon" id="fontLargerButton" type="button" title="글자 2px 크게" aria-label="글자 크게">＋</button><button class="btn" id="fontSizeResetButton" type="button">크기 원래대로</button>
-        <label class="tool-label" for="fontFamilySelect">글꼴</label><select class="select" id="fontFamilySelect" aria-label="글꼴 선택"><option value="original">원본 유지</option><option value="paperlogy">Paperlogy</option><option value="sans">고딕</option><option value="serif">명조</option><option value="mono">코드</option></select>
         <div class="menu" id="colorMenu"><button class="btn" id="colorMenuButton" type="button" aria-expanded="false" aria-haspopup="true" title="글자색 바꾸기"><span class="color-chip" id="colorChip" aria-hidden="true"></span>글자색 ▾</button><div class="menu-panel" role="menu" aria-label="글자색">
           <div class="menu-heading" id="colorScopeLabel">선택한 요소 전체에 적용</div>
           <div class="color-grid">
@@ -240,6 +232,14 @@
           <label class="color-custom" for="colorPicker"><span>다른 색 고르기</span><input type="color" id="colorPicker" value="#242733"></label>
           <div class="menu-divider"></div><button type="button" id="colorResetButton">글자색 지우기 <small>요소 전체</small></button>
         </div></div>
+        <button class="btn icon" id="moveUpButton" type="button" title="한 칸 위로" aria-label="선택 요소를 한 칸 위로">↑</button><button class="btn icon" id="moveDownButton" type="button" title="한 칸 아래로" aria-label="선택 요소를 한 칸 아래로">↓</button><button class="btn" id="duplicateButton" type="button">복제</button>
+        <div class="menu" id="insertMenu"><button class="btn" id="insertMenuButton" type="button" aria-expanded="false">추가 ▾</button><div class="menu-panel" role="menu">
+          <div class="menu-heading">선택한 요소 아래에 추가</div><button type="button" data-insert="h2">큰 제목 <small>H2</small></button><button type="button" data-insert="h3">작은 제목 <small>H3</small></button><button type="button" data-insert="p">문단</button><button type="button" data-insert="ul">글머리표 목록</button><button type="button" data-insert="image-file">내 이미지</button><button type="button" data-insert="hr">구분선</button><div class="menu-divider"></div><div class="menu-heading">고급 기능</div><button type="button" data-insert="image-url">이미지 주소로 추가</button>
+        </div></div><button class="btn danger" id="deleteButton" type="button">삭제</button>
+      </div>
+      <div class="tool-group" id="textTools" hidden>
+        <span class="tool-label">글자</span><button class="btn icon" id="fontSmallerButton" type="button" title="글자 2px 작게" aria-label="글자 작게">−</button><span class="size-readout" id="fontSizeReadout">16px</span><button class="btn icon" id="fontLargerButton" type="button" title="글자 2px 크게" aria-label="글자 크게">＋</button><button class="btn" id="fontSizeResetButton" type="button">크기 원래대로</button>
+        <label class="tool-label" for="fontFamilySelect">글꼴</label><select class="select" id="fontFamilySelect" aria-label="글꼴 선택"><option value="original">원본 유지</option><option value="paperlogy">Paperlogy</option><option value="sans">고딕</option><option value="serif">명조</option><option value="mono">코드</option></select>
       </div>
       <div class="tool-group" id="imageTools" hidden><span class="tool-label">이미지</span><button class="btn icon" id="imageSmallerButton" type="button" aria-label="이미지 작게">−</button><input class="number-input" id="imageWidthInput" type="number" min="20" max="4000" step="10" aria-label="이미지 너비 픽셀"><span class="tool-label">px</span><button class="btn icon" id="imageLargerButton" type="button" aria-label="이미지 크게">＋</button><button class="btn" id="imageResetButton" type="button">원래 크기</button><button class="btn" id="imageCenterButton" type="button">가운데</button></div>
       <div class="tool-group" id="slideToggleGroup" hidden><button class="btn" id="slideToggleButton" type="button" aria-expanded="true">슬라이드 목록</button></div>
@@ -379,7 +379,7 @@
     function selectElement(node){
       if(!node)return clearSelection(); if(state.editing&&state.selected!==node)finishTextEdit(); state.selected?.removeAttribute(TEMP_PREFIX+"selected");
       state.selected=node; node.setAttribute(TEMP_PREFIX+"selected",""); selectionTools.hidden=false; textTools.hidden=!isTextElement(node); imageTools.hidden=node.tagName!=="IMG";
-      el("editTextButton").disabled=!isTextElement(node); selectionLabel.textContent=elementLabel(node)+" 선택됨"; refreshContextControls();
+      el("editTextButton").disabled=!isTextElement(node); el("colorMenu").hidden=!isTextElement(node); selectionLabel.textContent=elementLabel(node)+" 선택됨"; refreshContextControls();
     }
     function onPreviewClick(event){
       if(state.editing&&state.selected?.contains(event.target))return;
