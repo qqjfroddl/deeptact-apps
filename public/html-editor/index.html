@@ -106,6 +106,7 @@
     .menu-heading { padding: 5px 10px 2px; font-size: 11px; }
     .menu-divider { height: 1px; margin: 4px 6px; background: var(--line); }
     .color-chip { width: 16px; height: 16px; flex: 0 0 16px; border: 1px solid var(--line-strong); border-radius: 4px; background: var(--ink); }
+    .color-chip.none { background: #fff; background-image: linear-gradient(to top right, transparent 45%, #D93025 45%, #D93025 55%, transparent 55%); }
     .color-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 6px; padding: 4px 6px 6px; }
     .menu-panel .swatch { width: 100%; min-height: 0; aspect-ratio: 1; padding: 0; border: 1px solid rgba(0,0,0,.14); border-radius: 8px; background: var(--swatch); }
     .menu-panel .swatch:hover { background: var(--swatch); box-shadow: 0 0 0 3px rgba(60,109,113,.3); }
@@ -232,6 +233,15 @@
           <label class="color-custom" for="colorPicker"><span>다른 색 고르기</span><input type="color" id="colorPicker" value="#242733"></label>
           <div class="menu-divider"></div><button type="button" id="colorResetButton">글자색 지우기 <small>요소 전체</small></button>
         </div></div>
+        <div class="menu" id="bgColorMenu"><button class="btn" id="bgColorMenuButton" type="button" aria-expanded="false" aria-haspopup="true" title="글자 배경색(형광펜) 바꾸기"><span class="color-chip none" id="bgColorChip" aria-hidden="true"></span>배경색 ▾</button><div class="menu-panel" role="menu" aria-label="배경색">
+          <div class="menu-heading" id="bgColorScopeLabel">선택한 요소 전체에 적용</div>
+          <div class="color-grid">
+            <button type="button" class="swatch" data-color="#FFF3A3" style="--swatch:#FFF3A3" title="형광 노랑" aria-label="형광 노랑"></button><button type="button" class="swatch" data-color="#D8F2C8" style="--swatch:#D8F2C8" title="연두" aria-label="연두"></button><button type="button" class="swatch" data-color="#CFE6FA" style="--swatch:#CFE6FA" title="하늘" aria-label="하늘"></button><button type="button" class="swatch" data-color="#FFD9E1" style="--swatch:#FFD9E1" title="분홍" aria-label="분홍"></button>
+            <button type="button" class="swatch" data-color="#FFE0C2" style="--swatch:#FFE0C2" title="살구" aria-label="살구"></button><button type="button" class="swatch" data-color="#E3DCF7" style="--swatch:#E3DCF7" title="라벤더" aria-label="라벤더"></button><button type="button" class="swatch" data-color="#E4EDED" style="--swatch:#E4EDED" title="연회색" aria-label="연회색"></button><button type="button" class="swatch" data-color="#2E3142" style="--swatch:#2E3142" title="남색" aria-label="남색"></button>
+          </div>
+          <label class="color-custom" for="bgColorPicker"><span>다른 색 고르기</span><input type="color" id="bgColorPicker" value="#FFF3A3"></label>
+          <div class="menu-divider"></div><button type="button" id="bgColorResetButton">배경색 지우기 <small>요소 전체</small></button>
+        </div></div>
         <button class="btn icon" id="moveUpButton" type="button" title="한 칸 위로" aria-label="선택 요소를 한 칸 위로">↑</button><button class="btn icon" id="moveDownButton" type="button" title="한 칸 아래로" aria-label="선택 요소를 한 칸 아래로">↓</button><button class="btn" id="duplicateButton" type="button">복제</button>
         <div class="menu" id="insertMenu"><button class="btn" id="insertMenuButton" type="button" aria-expanded="false">추가 ▾</button><div class="menu-panel" role="menu">
           <div class="menu-heading">선택한 요소 아래에 추가</div><button type="button" data-insert="h2">큰 제목 <small>H2</small></button><button type="button" data-insert="h3">작은 제목 <small>H3</small></button><button type="button" data-insert="p">문단</button><button type="button" data-insert="ul">글머리표 목록</button><button type="button" data-insert="image-file">내 이미지</button><button type="button" data-insert="hr">구분선</button><div class="menu-divider"></div><div class="menu-heading">고급 기능</div><button type="button" data-insert="image-url">이미지 주소로 추가</button>
@@ -263,7 +273,7 @@
       <div class="callout"><strong>처음에는 원본에 저장하지 마세요.</strong><br>새 파일로 저장해 결과를 확인한 뒤 원본과 교체하는 방식이 가장 안전합니다.</div><div class="callout warning"><strong>신뢰하는 HTML만 여세요.</strong><br>원본과 같은 화면을 보여주기 위해 문서에 포함된 JavaScript도 미리보기에서 실행합니다.</div>
       <h3>글자 수정</h3><ul><li>한 번 클릭: 제목·문단·목록 항목 선택</li><li>더블클릭: 바로 텍스트 편집</li><li>`텍스트 편집` 버튼: 선택한 글자를 편집</li><li><kbd>Esc</kbd>: 텍스트 편집 종료</li></ul>
       <h3>글자 크기와 글꼴</h3><p>제목·문단·목록 항목을 선택하면 글자 도구가 나타납니다. `−`와 `＋`는 2px씩 바꾸고, `크기 원래대로`는 이 편집기가 적용한 크기를 지웁니다.</p><p>글꼴은 원본 유지, Paperlogy, 고딕, 명조, 코드 다섯 가지입니다. Paperlogy는 인터넷이 없는 환경에서 시스템 글꼴로 대신 보일 수 있습니다.</p>
-      <h3>글자색</h3><ul><li><strong>요소 전체</strong>: 제목·문단을 한 번 클릭한 뒤 `글자색`에서 색을 고릅니다.</li><li><strong>일부 글자만</strong>: 더블클릭해 편집을 시작하고, 바꿀 글자를 드래그한 뒤 색을 고릅니다. 메뉴 맨 위에 `선택한 글자에만 적용`이 보이면 일부만 바뀝니다.</li><li>`다른 색 고르기`로 원하는 색을 직접 고를 수 있습니다.</li><li>`글자색 지우기`는 선택한 요소 안의 글자색을 모두 지워 문서 기본색으로 돌립니다. 원래 문서에 있던 색도 함께 지워지므로, 잘못 지웠다면 실행취소를 누르세요.</li></ul>
+      <h3>글자색·배경색</h3><ul><li><strong>요소 전체</strong>: 제목·문단을 한 번 클릭한 뒤 `글자색` 또는 `배경색`에서 색을 고릅니다.</li><li><strong>일부 글자만(형광펜)</strong>: 더블클릭해 편집을 시작하고, 바꿀 글자를 드래그한 뒤 색을 고릅니다. 메뉴 맨 위에 `선택한 글자에만 적용`이 보이면 드래그한 글자만 바뀝니다. 배경색을 이렇게 쓰면 형광펜이 됩니다.</li><li>`다른 색 고르기`로 원하는 색을 직접 고를 수 있습니다.</li><li>버튼 앞 네모는 지금 색입니다. 배경색 네모에 빨간 사선이 있으면 배경색이 없는 상태입니다.</li><li>`글자색 지우기`·`배경색 지우기`는 선택한 요소 안의 색을 모두 지웁니다. 원래 문서에 있던 색도 함께 지워지므로, 잘못 지웠다면 실행취소를 누르세요.</li></ul>
       <h3>이미지</h3><p>이미지를 선택하면 크기와 가운데 정렬 도구가 나타납니다. `추가 → 내 이미지`로 넣은 이미지는 HTML 파일 안에 포함되어 별도 이미지 파일이 필요 없습니다.</p>
       <h3>슬라이드</h3><p>슬라이드가 두 장 이상 감지되면 왼쪽 목록이 열립니다. 슬라이드를 클릭해 이동하고, 화살표 버튼이나 끌어놓기로 순서를 바꿉니다.</p>
       <h3>저장 방식</h3><ul><li><strong>새 파일 저장</strong>: 항상 사용할 수 있습니다. 파일명 끝에 `.edited.html`이 붙습니다.</li><li><strong>원본에 저장</strong>: Chrome·Edge에서 `파일 열기`로 연 경우에만 사용할 수 있습니다.</li><li>파일을 끌어다 놓아 열면 브라우저가 원래 위치를 기억하지 못하므로 새 파일로만 저장됩니다.</li></ul>
@@ -271,7 +281,7 @@
       <h3>문제가 생겼을 때</h3><ul><li>이미지·글꼴이 빠져 보이면 저장 후 원래 폴더에서 다시 확인합니다.</li><li>끌어 이동되지 않으면 위·아래 화살표 버튼을 사용합니다.</li><li>잘못 바꿨다면 실행취소를 누릅니다.</li><li>브라우저를 닫기 전에 `저장되지 않은 변경` 배지가 없는지 확인합니다.</li></ul>
     </div>
   </aside>
-  <dialog id="aboutDialog"><div class="dialog-head"><h2>앱 정보</h2><button class="btn icon" id="aboutCloseButton" type="button" aria-label="앱 정보 닫기">×</button></div><div class="dialog-body"><p><strong>HTML 편집기 V2</strong>는 코드를 몰라도 강의용 HTML을 수정할 수 있도록 딥택트러닝이 독립적으로 설계하고 개발한 도구입니다.</p><dl><dt>버전</dt><dd>2.2.0</dd><dt>제작·운영</dt><dd>딥택트러닝</dd><dt>파일 처리</dt><dd>편집기 서버 업로드 없음·문서 스크립트 실행</dd><dt>권장 환경</dt><dd>최신 Chrome 또는 Edge 데스크톱</dd></dl></div></dialog>
+  <dialog id="aboutDialog"><div class="dialog-head"><h2>앱 정보</h2><button class="btn icon" id="aboutCloseButton" type="button" aria-label="앱 정보 닫기">×</button></div><div class="dialog-body"><p><strong>HTML 편집기 V2</strong>는 코드를 몰라도 강의용 HTML을 수정할 수 있도록 딥택트러닝이 독립적으로 설계하고 개발한 도구입니다.</p><dl><dt>버전</dt><dd>2.3.0</dd><dt>제작·운영</dt><dd>딥택트러닝</dd><dt>파일 처리</dt><dd>편집기 서버 업로드 없음·문서 스크립트 실행</dd><dt>권장 환경</dt><dd>최신 Chrome 또는 Edge 데스크톱</dd></dl></div></dialog>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <input id="fileInput" type="file" accept=".html,.htm,text/html" hidden><input id="imageInput" type="file" accept="image/*" hidden>
   <script>
@@ -379,7 +389,7 @@
     function selectElement(node){
       if(!node)return clearSelection(); if(state.editing&&state.selected!==node)finishTextEdit(); state.selected?.removeAttribute(TEMP_PREFIX+"selected");
       state.selected=node; node.setAttribute(TEMP_PREFIX+"selected",""); selectionTools.hidden=false; textTools.hidden=!isTextElement(node); imageTools.hidden=node.tagName!=="IMG";
-      el("editTextButton").disabled=!isTextElement(node); el("colorMenu").hidden=!isTextElement(node); selectionLabel.textContent=elementLabel(node)+" 선택됨"; refreshContextControls();
+      el("editTextButton").disabled=!isTextElement(node); el("colorMenu").hidden=el("bgColorMenu").hidden=!isTextElement(node); selectionLabel.textContent=elementLabel(node)+" 선택됨"; refreshContextControls();
     }
     function onPreviewClick(event){
       if(state.editing&&state.selected?.contains(event.target))return;
@@ -430,33 +440,55 @@
     function ensurePaperlogyLink(doc){if(doc.getElementById("deeptact-paperlogy-font"))return;const link=doc.createElement("link");link.id="deeptact-paperlogy-font";link.rel="stylesheet";link.href=PAPERLOGY_URL;(doc.head||doc.documentElement).appendChild(link);}
     function setFontFamily(key){if(!isTextElement(state.selected))return;changeDocument(()=>{const nodes=[state.selected,sourceNode(state.selected)];if(key==="original"){nodes.forEach(node=>{node.style.removeProperty("font-family");if(node.getAttribute("style")==="")node.removeAttribute("style");});}else{if(key==="paperlogy"){ensurePaperlogyLink(getEditorDocument());ensurePaperlogyLink(state.sourceDoc);}nodes.forEach(node=>node.style.fontFamily=FONT_STYLES[key]);}},{refreshSlides:false});}
     function detectFontKey(node){const inline=node?.style?.fontFamily||"";if(!inline)return"original";if(/Paperlogy/i.test(inline))return"paperlogy";if(/D2Coding|Consolas|Courier/i.test(inline))return"mono";if(/Myeongjo|Batang|serif/i.test(inline)&&!/sans-serif/i.test(inline))return"serif";return"sans";}
-    // 글자색: 편집 중 드래그한 범위가 있으면 그 글자만, 아니면 요소 전체에 적용한다
+    // 글자색·배경색: 편집 중 드래그한 범위가 있으면 그 글자만, 아니면 요소 전체에 적용한다
+    const COLOR_MODES={
+      text:{key:"text",menu:"colorMenu",chip:"colorChip",picker:"colorPicker",scope:"colorScopeLabel",property:"color",cssProperty:"color",command:"foreColor",fallback:"#242733",label:"글자색"},
+      back:{key:"back",menu:"bgColorMenu",chip:"bgColorChip",picker:"bgColorPicker",scope:"bgColorScopeLabel",property:"backgroundColor",cssProperty:"background-color",command:"hiliteColor",fallback:"#FFF3A3",label:"배경색"}
+    };
     function rememberTextRange(){if(!state.editing||!state.selected)return;const selection=getEditorDocument()?.getSelection();if(!selection?.rangeCount)return;const range=selection.getRangeAt(0);if(state.selected.contains(range.commonAncestorContainer))state.savedRange=range.cloneRange();}
     function hasPartialSelection(){return Boolean(state.editing&&state.savedRange&&!state.savedRange.collapsed);}
-    function toHexColor(color){const parts=String(color).match(/[\d.]+/g);if(!parts||parts.length<3)return"#242733";return"#"+parts.slice(0,3).map(value=>Math.max(0,Math.min(255,Math.round(Number(value)))).toString(16).padStart(2,"0")).join("");}
-    function showCurrentColor(hex){el("colorChip").style.background=hex;el("colorPicker").value=hex;el("colorMenu").querySelectorAll(".swatch").forEach(swatch=>swatch.classList.toggle("current",swatch.dataset.color.toLowerCase()===hex.toLowerCase()));}
-    function updateColorScope(){const partial=hasPartialSelection();el("colorScopeLabel").textContent=partial?"선택한 글자에만 적용":"선택한 요소 전체에 적용";if(partial){const start=state.savedRange.startContainer,node=start.nodeType===Node.TEXT_NODE?start.parentElement:start;showCurrentColor(toHexColor(preview.contentWindow.getComputedStyle(node).color));}}
-    function applyTextColor(color){
-      if(!isTextElement(state.selected))return;const hex=/^#[0-9a-f]{6}$/i.test(color)?color.toLowerCase():toHexColor(color);
+    // allowNone: 배경색처럼 「색 없음(투명)」이 정상인 속성은 null을 돌려준다
+    function toHexColor(color,allowNone){
+      const parts=String(color).match(/[\d.]+/g);if(!parts||parts.length<3)return allowNone?null:"#242733";
+      if(parts.length>3&&Number(parts[3])===0)return allowNone?null:"#242733";
+      return"#"+parts.slice(0,3).map(value=>Math.max(0,Math.min(255,Math.round(Number(value)))).toString(16).padStart(2,"0")).join("");
+    }
+    function computedColor(node,mode){return toHexColor(preview.contentWindow.getComputedStyle(node)[mode.property],mode.key==="back");}
+    function showCurrentColor(mode,hex){
+      const chip=el(mode.chip);chip.style.background=hex||"#fff";chip.classList.toggle("none",!hex);el(mode.picker).value=hex||mode.fallback;
+      el(mode.menu).querySelectorAll(".swatch").forEach(swatch=>swatch.classList.toggle("current",Boolean(hex)&&swatch.dataset.color.toLowerCase()===hex.toLowerCase()));
+    }
+    function updateColorScope(mode){
+      const partial=hasPartialSelection();el(mode.scope).textContent=partial?"선택한 글자에만 적용":"선택한 요소 전체에 적용";
+      if(partial){const start=state.savedRange.startContainer,node=start.nodeType===Node.TEXT_NODE?start.parentElement:start;showCurrentColor(mode,computedColor(node,mode));}
+    }
+    function applyColor(mode,color){
+      if(!isTextElement(state.selected))return;const hex=/^#[0-9a-f]{6}$/i.test(color)?color.toLowerCase():(toHexColor(color)||mode.fallback);
       if(hasPartialSelection()){
         const doc=getEditorDocument(),selection=doc.getSelection(),range=state.savedRange;state.selected.focus();selection.removeAllRanges();selection.addRange(range);
-        doc.execCommand("styleWithCSS",false,true);doc.execCommand("foreColor",false,hex);rememberTextRange();showCurrentColor(hex);setStatus("선택한 글자의 색을 바꿨습니다. 편집을 마치면 변경이 기록됩니다.");return;
+        doc.execCommand("styleWithCSS",false,true);
+        if(!doc.execCommand(mode.command,false,hex)&&mode.key==="back")doc.execCommand("backColor",false,hex);
+        rememberTextRange();showCurrentColor(mode,hex);setStatus("선택한 글자의 "+mode.label+"을 바꿨습니다. 편집을 마치면 변경이 기록됩니다.");return;
       }
-      changeDocument(()=>{[state.selected,sourceNode(state.selected)].forEach(node=>{node.style.color=hex;});},{refreshSlides:false});showCurrentColor(hex);
+      changeDocument(()=>{[state.selected,sourceNode(state.selected)].forEach(node=>{node.style[mode.property]=hex;});},{refreshSlides:false});showCurrentColor(mode,hex);
     }
-    function resetTextColor(){
+    function resetColor(mode){
       if(!isTextElement(state.selected))return;
       changeDocument(()=>{[state.selected,sourceNode(state.selected)].forEach(node=>{
-        [node,...node.querySelectorAll("[style]")].forEach(item=>{item.style.removeProperty("color");if(item.getAttribute("style")==="")item.removeAttribute("style");});
-        node.querySelectorAll("font[color]").forEach(font=>font.removeAttribute("color"));
-        node.querySelectorAll("span").forEach(span=>{if(![...span.attributes].some(attribute=>!attribute.name.startsWith(TEMP_PREFIX)))span.replaceWith(...span.childNodes);});
-      });},{refreshSlides:false});refreshContextControls();showToast("글자색을 지웠습니다.");
+        [node,...node.querySelectorAll("[style]")].forEach(item=>{
+          item.style.removeProperty(mode.cssProperty);if(mode.key==="back")item.style.removeProperty("background");
+          if(item.getAttribute("style")==="")item.removeAttribute("style");
+        });
+        const attribute=mode.key==="back"?"bgcolor":"color";
+        node.querySelectorAll("font["+attribute+"]").forEach(font=>font.removeAttribute(attribute));
+        node.querySelectorAll("span").forEach(span=>{if(![...span.attributes].some(item=>!item.name.startsWith(TEMP_PREFIX)))span.replaceWith(...span.childNodes);});
+      });},{refreshSlides:false});refreshContextControls();showToast(mode.label+"을 지웠습니다.");
     }
     function imageWidth(){if(state.selected?.tagName!=="IMG")return 0;return Math.round(state.selected.getBoundingClientRect().width);}
     function setImageWidth(width){if(state.selected?.tagName!=="IMG")return;const safe=Math.max(20,Math.min(4000,Math.round(width)));changeDocument(()=>{[state.selected,sourceNode(state.selected)].forEach(node=>{node.style.width=safe+"px";node.style.height="auto";});},{refreshSlides:false});el("imageWidthInput").value=safe;}
     function resetImageSize(){if(state.selected?.tagName!=="IMG")return;changeDocument(()=>{[state.selected,sourceNode(state.selected)].forEach(node=>{node.style.removeProperty("width");node.style.removeProperty("height");if(node.getAttribute("style")==="")node.removeAttribute("style");});},{refreshSlides:false});refreshContextControls();}
     function toggleImageCenter(){if(state.selected?.tagName!=="IMG")return;changeDocument(()=>{const centered=state.selected.style.marginLeft==="auto"&&state.selected.style.marginRight==="auto";[state.selected,sourceNode(state.selected)].forEach(node=>{if(centered){node.style.removeProperty("display");node.style.removeProperty("margin-left");node.style.removeProperty("margin-right");}else{node.style.display="block";node.style.marginLeft="auto";node.style.marginRight="auto";}if(node.getAttribute("style")==="")node.removeAttribute("style");});},{refreshSlides:false});refreshContextControls();}
-    function refreshContextControls(){const selected=state.selected;if(!selected)return;if(isTextElement(selected)){el("fontSizeReadout").textContent=currentFontSize()+"px";el("fontFamilySelect").value=detectFontKey(selected);showCurrentColor(toHexColor(preview.contentWindow.getComputedStyle(selected).color));}if(selected.tagName==="IMG"){el("imageWidthInput").value=imageWidth();const centered=selected.style.marginLeft==="auto"&&selected.style.marginRight==="auto";el("imageCenterButton").textContent=centered?"가운데 해제":"가운데";}}
+    function refreshContextControls(){const selected=state.selected;if(!selected)return;if(isTextElement(selected)){el("fontSizeReadout").textContent=currentFontSize()+"px";el("fontFamilySelect").value=detectFontKey(selected);Object.values(COLOR_MODES).forEach(mode=>showCurrentColor(mode,computedColor(selected,mode)));}if(selected.tagName==="IMG"){el("imageWidthInput").value=imageWidth();const centered=selected.style.marginLeft==="auto"&&selected.style.marginRight==="auto";el("imageCenterButton").textContent=centered?"가운데 해제":"가운데";}}
     function findSlides(doc){for(const selector of SLIDE_SELECTORS){const matches=[...doc.querySelectorAll(selector)];if(matches.length>=2)return matches;}return[];}
     function detectSlides(){
       const doc=getEditorDocument();if(!doc)return;
@@ -498,10 +530,15 @@
     el("openButton").addEventListener("click",openFile);el("emptyOpenButton").addEventListener("click",openFile);el("sampleButton").addEventListener("click",loadSample);el("downloadButton").addEventListener("click",downloadFile);el("overwriteButton").addEventListener("click",overwriteFile);el("undoButton").addEventListener("click",undo);el("redoButton").addEventListener("click",redo);el("editTextButton").addEventListener("click",startTextEdit);el("moveUpButton").addEventListener("click",()=>moveSelected(-1));el("moveDownButton").addEventListener("click",()=>moveSelected(1));el("duplicateButton").addEventListener("click",duplicateSelected);el("deleteButton").addEventListener("click",deleteSelected);
     el("insertMenuButton").addEventListener("click",event=>{event.stopPropagation();toggleMenu("insertMenu","insertMenuButton");});el("insertMenu").querySelector(".menu-panel").addEventListener("click",event=>{const button=event.target.closest("[data-insert]");if(!button)return;insertAfterSelection(button.dataset.insert);closeMenus();});
     el("fontSmallerButton").addEventListener("click",()=>setFontSize(currentFontSize()-2));el("fontLargerButton").addEventListener("click",()=>setFontSize(currentFontSize()+2));el("fontSizeResetButton").addEventListener("click",resetFontSize);el("fontFamilySelect").addEventListener("change",event=>setFontFamily(event.target.value));
-    el("colorMenuButton").addEventListener("mousedown",event=>event.preventDefault());el("colorMenuButton").addEventListener("click",event=>{event.stopPropagation();updateColorScope();toggleMenu("colorMenu","colorMenuButton");});
-    el("colorMenu").querySelectorAll(".swatch,#colorResetButton").forEach(button=>button.addEventListener("mousedown",event=>event.preventDefault()));
-    el("colorMenu").querySelector(".color-grid").addEventListener("click",event=>{const swatch=event.target.closest(".swatch");if(!swatch)return;applyTextColor(swatch.dataset.color);closeMenus();});
-    el("colorPicker").addEventListener("change",event=>{applyTextColor(event.target.value);closeMenus();});el("colorResetButton").addEventListener("click",()=>{resetTextColor();closeMenus();});
+    Object.values(COLOR_MODES).forEach(mode=>{
+      const button=mode.menu+"Button",reset=mode.menu==="colorMenu"?"colorResetButton":"bgColorResetButton";
+      el(button).addEventListener("mousedown",event=>event.preventDefault());
+      el(button).addEventListener("click",event=>{event.stopPropagation();updateColorScope(mode);toggleMenu(mode.menu,button);});
+      el(mode.menu).querySelectorAll(".swatch,#"+reset).forEach(item=>item.addEventListener("mousedown",event=>event.preventDefault()));
+      el(mode.menu).querySelector(".color-grid").addEventListener("click",event=>{const swatch=event.target.closest(".swatch");if(!swatch)return;applyColor(mode,swatch.dataset.color);closeMenus();});
+      el(mode.picker).addEventListener("change",event=>{applyColor(mode,event.target.value);closeMenus();});
+      el(reset).addEventListener("click",()=>{resetColor(mode);closeMenus();});
+    });
     el("imageSmallerButton").addEventListener("click",()=>setImageWidth(imageWidth()*.9));el("imageLargerButton").addEventListener("click",()=>setImageWidth(imageWidth()*1.1));el("imageWidthInput").addEventListener("change",event=>setImageWidth(Number(event.target.value)));el("imageResetButton").addEventListener("click",resetImageSize);el("imageCenterButton").addEventListener("click",toggleImageCenter);
     slideToggleButton.addEventListener("click",()=>{const willShow=slidesPanel.hidden;slidesPanel.hidden=!willShow;slideToggleButton.setAttribute("aria-expanded",String(willShow));});
     el("slidePanelCloseButton").addEventListener("click",()=>{slidesPanel.hidden=true;slideToggleButton.setAttribute("aria-expanded","false");});
