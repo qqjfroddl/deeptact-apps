@@ -105,6 +105,14 @@
     .menu-panel small, .menu-heading { color: var(--muted); }
     .menu-heading { padding: 5px 10px 2px; font-size: 11px; }
     .menu-divider { height: 1px; margin: 4px 6px; background: var(--line); }
+    .color-chip { width: 16px; height: 16px; flex: 0 0 16px; border: 1px solid var(--line-strong); border-radius: 4px; background: var(--ink); }
+    .color-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 6px; padding: 4px 6px 6px; }
+    .menu-panel .swatch { width: 100%; min-height: 0; aspect-ratio: 1; padding: 0; border: 1px solid rgba(0,0,0,.14); border-radius: 8px; background: var(--swatch); }
+    .menu-panel .swatch:hover { background: var(--swatch); box-shadow: 0 0 0 3px rgba(60,109,113,.3); }
+    .menu-panel .swatch.current { box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--accent); }
+    .color-custom { min-height: 38px; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 10px; border-radius: 7px; cursor: pointer; }
+    .color-custom:hover { background: var(--accent-soft); }
+    .color-custom input { width: 40px; height: 28px; padding: 0; border: 1px solid var(--line); border-radius: 6px; background: #fff; cursor: pointer; }
     .workspace { min-height: 0; display: flex; position: relative; background: #D8DBDC; }
     .slides-panel {
       width: 238px; flex: 0 0 238px; display: flex; flex-direction: column; min-height: 0;
@@ -223,6 +231,15 @@
       <div class="tool-group" id="textTools" hidden>
         <span class="tool-label">글자</span><button class="btn icon" id="fontSmallerButton" type="button" title="글자 2px 작게" aria-label="글자 작게">−</button><span class="size-readout" id="fontSizeReadout">16px</span><button class="btn icon" id="fontLargerButton" type="button" title="글자 2px 크게" aria-label="글자 크게">＋</button><button class="btn" id="fontSizeResetButton" type="button">크기 원래대로</button>
         <label class="tool-label" for="fontFamilySelect">글꼴</label><select class="select" id="fontFamilySelect" aria-label="글꼴 선택"><option value="original">원본 유지</option><option value="paperlogy">Paperlogy</option><option value="sans">고딕</option><option value="serif">명조</option><option value="mono">코드</option></select>
+        <div class="menu" id="colorMenu"><button class="btn" id="colorMenuButton" type="button" aria-expanded="false" aria-haspopup="true" title="글자색 바꾸기"><span class="color-chip" id="colorChip" aria-hidden="true"></span>글자색 ▾</button><div class="menu-panel" role="menu" aria-label="글자색">
+          <div class="menu-heading" id="colorScopeLabel">선택한 요소 전체에 적용</div>
+          <div class="color-grid">
+            <button type="button" class="swatch" data-color="#242733" style="--swatch:#242733" title="검정" aria-label="검정"></button><button type="button" class="swatch" data-color="#2E3142" style="--swatch:#2E3142" title="남색" aria-label="남색"></button><button type="button" class="swatch" data-color="#3C6D71" style="--swatch:#3C6D71" title="청록" aria-label="청록"></button><button type="button" class="swatch" data-color="#687078" style="--swatch:#687078" title="회색" aria-label="회색"></button>
+            <button type="button" class="swatch" data-color="#D93025" style="--swatch:#D93025" title="빨강" aria-label="빨강"></button><button type="button" class="swatch" data-color="#E37400" style="--swatch:#E37400" title="주황" aria-label="주황"></button><button type="button" class="swatch" data-color="#1A73E8" style="--swatch:#1A73E8" title="파랑" aria-label="파랑"></button><button type="button" class="swatch" data-color="#FFFFFF" style="--swatch:#FFFFFF" title="흰색" aria-label="흰색"></button>
+          </div>
+          <label class="color-custom" for="colorPicker"><span>다른 색 고르기</span><input type="color" id="colorPicker" value="#242733"></label>
+          <div class="menu-divider"></div><button type="button" id="colorResetButton">글자색 지우기 <small>요소 전체</small></button>
+        </div></div>
       </div>
       <div class="tool-group" id="imageTools" hidden><span class="tool-label">이미지</span><button class="btn icon" id="imageSmallerButton" type="button" aria-label="이미지 작게">−</button><input class="number-input" id="imageWidthInput" type="number" min="20" max="4000" step="10" aria-label="이미지 너비 픽셀"><span class="tool-label">px</span><button class="btn icon" id="imageLargerButton" type="button" aria-label="이미지 크게">＋</button><button class="btn" id="imageResetButton" type="button">원래 크기</button><button class="btn" id="imageCenterButton" type="button">가운데</button></div>
       <div class="tool-group" id="slideToggleGroup" hidden><button class="btn" id="slideToggleButton" type="button" aria-expanded="true">슬라이드 목록</button></div>
@@ -246,6 +263,7 @@
       <div class="callout"><strong>처음에는 원본에 저장하지 마세요.</strong><br>새 파일로 저장해 결과를 확인한 뒤 원본과 교체하는 방식이 가장 안전합니다.</div><div class="callout warning"><strong>신뢰하는 HTML만 여세요.</strong><br>원본과 같은 화면을 보여주기 위해 문서에 포함된 JavaScript도 미리보기에서 실행합니다.</div>
       <h3>글자 수정</h3><ul><li>한 번 클릭: 제목·문단·목록 항목 선택</li><li>더블클릭: 바로 텍스트 편집</li><li>`텍스트 편집` 버튼: 선택한 글자를 편집</li><li><kbd>Esc</kbd>: 텍스트 편집 종료</li></ul>
       <h3>글자 크기와 글꼴</h3><p>제목·문단·목록 항목을 선택하면 글자 도구가 나타납니다. `−`와 `＋`는 2px씩 바꾸고, `크기 원래대로`는 이 편집기가 적용한 크기를 지웁니다.</p><p>글꼴은 원본 유지, Paperlogy, 고딕, 명조, 코드 다섯 가지입니다. Paperlogy는 인터넷이 없는 환경에서 시스템 글꼴로 대신 보일 수 있습니다.</p>
+      <h3>글자색</h3><ul><li><strong>요소 전체</strong>: 제목·문단을 한 번 클릭한 뒤 `글자색`에서 색을 고릅니다.</li><li><strong>일부 글자만</strong>: 더블클릭해 편집을 시작하고, 바꿀 글자를 드래그한 뒤 색을 고릅니다. 메뉴 맨 위에 `선택한 글자에만 적용`이 보이면 일부만 바뀝니다.</li><li>`다른 색 고르기`로 원하는 색을 직접 고를 수 있습니다.</li><li>`글자색 지우기`는 선택한 요소 안의 글자색을 모두 지워 문서 기본색으로 돌립니다. 원래 문서에 있던 색도 함께 지워지므로, 잘못 지웠다면 실행취소를 누르세요.</li></ul>
       <h3>이미지</h3><p>이미지를 선택하면 크기와 가운데 정렬 도구가 나타납니다. `추가 → 내 이미지`로 넣은 이미지는 HTML 파일 안에 포함되어 별도 이미지 파일이 필요 없습니다.</p>
       <h3>슬라이드</h3><p>슬라이드가 두 장 이상 감지되면 왼쪽 목록이 열립니다. 슬라이드를 클릭해 이동하고, 화살표 버튼이나 끌어놓기로 순서를 바꿉니다.</p>
       <h3>저장 방식</h3><ul><li><strong>새 파일 저장</strong>: 항상 사용할 수 있습니다. 파일명 끝에 `.edited.html`이 붙습니다.</li><li><strong>원본에 저장</strong>: Chrome·Edge에서 `파일 열기`로 연 경우에만 사용할 수 있습니다.</li><li>파일을 끌어다 놓아 열면 브라우저가 원래 위치를 기억하지 못하므로 새 파일로만 저장됩니다.</li></ul>
@@ -253,7 +271,7 @@
       <h3>문제가 생겼을 때</h3><ul><li>이미지·글꼴이 빠져 보이면 저장 후 원래 폴더에서 다시 확인합니다.</li><li>끌어 이동되지 않으면 위·아래 화살표 버튼을 사용합니다.</li><li>잘못 바꿨다면 실행취소를 누릅니다.</li><li>브라우저를 닫기 전에 `저장되지 않은 변경` 배지가 없는지 확인합니다.</li></ul>
     </div>
   </aside>
-  <dialog id="aboutDialog"><div class="dialog-head"><h2>앱 정보</h2><button class="btn icon" id="aboutCloseButton" type="button" aria-label="앱 정보 닫기">×</button></div><div class="dialog-body"><p><strong>HTML 편집기 V2</strong>는 코드를 몰라도 강의용 HTML을 수정할 수 있도록 딥택트러닝이 독립적으로 설계하고 개발한 도구입니다.</p><dl><dt>버전</dt><dd>2.1.1</dd><dt>제작·운영</dt><dd>딥택트러닝</dd><dt>파일 처리</dt><dd>편집기 서버 업로드 없음·문서 스크립트 실행</dd><dt>권장 환경</dt><dd>최신 Chrome 또는 Edge 데스크톱</dd></dl></div></dialog>
+  <dialog id="aboutDialog"><div class="dialog-head"><h2>앱 정보</h2><button class="btn icon" id="aboutCloseButton" type="button" aria-label="앱 정보 닫기">×</button></div><div class="dialog-body"><p><strong>HTML 편집기 V2</strong>는 코드를 몰라도 강의용 HTML을 수정할 수 있도록 딥택트러닝이 독립적으로 설계하고 개발한 도구입니다.</p><dl><dt>버전</dt><dd>2.2.0</dd><dt>제작·운영</dt><dd>딥택트러닝</dd><dt>파일 처리</dt><dd>편집기 서버 업로드 없음·문서 스크립트 실행</dd><dt>권장 환경</dt><dd>최신 Chrome 또는 Edge 데스크톱</dd></dl></div></dialog>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <input id="fileInput" type="file" accept=".html,.htm,text/html" hidden><input id="imageInput" type="file" accept="image/*" hidden>
   <script>
@@ -272,7 +290,7 @@
     const TEXT_TAGS = new Set(["P","H1","H2","H3","H4","H5","H6","LI","BLOCKQUOTE","PRE","FIGCAPTION","DIV"]);
     const BLOCK_SELECTOR = "p,h1,h2,h3,h4,h5,h6,li,img,table,blockquote,pre,figure,figcaption,hr,section,article,aside,header,footer,div";
     const SLIDE_SELECTORS = [".reveal .slides > section",".slides > section",".slides > .slide","section.slide",".slide"];
-    const state = { fileName:"", fileHandle:null, doctype:"<!doctype html>", sourceDoc:null, sourceId:0, selected:null, editing:false, editBefore:"", dirty:false, undo:[], redo:[], slides:[], slideIndex:0, dragSlideIndex:null, toastTimer:null };
+    const state = { fileName:"", fileHandle:null, doctype:"<!doctype html>", sourceDoc:null, sourceId:0, selected:null, editing:false, editBefore:"", savedRange:null, dirty:false, undo:[], redo:[], slides:[], slideIndex:0, dragSlideIndex:null, toastTimer:null };
     const el = id => document.getElementById(id);
     const preview = el("preview"), emptyState = el("emptyState"), dropCard = el("dropCard"), fileName = el("fileName"), dirtyBadge = el("dirtyBadge"), saveModeChip = el("saveModeChip"), selectionLabel = el("selectionLabel"), statusMessage = el("statusMessage"), selectionTools = el("selectionTools"), textTools = el("textTools"), imageTools = el("imageTools"), slidesPanel = el("slidesPanel"), slidesList = el("slidesList"), slidesCount = el("slidesCount"), slideToggleGroup = el("slideToggleGroup"), slideToggleButton = el("slideToggleButton");
     const getEditorDocument = () => preview.contentDocument;
@@ -341,7 +359,7 @@
     }
     function attachEditingSurface(){
       const doc=getEditorDocument(); if(!doc?.body)throw new Error("HTML 본문을 찾을 수 없습니다."); addEditorStyle(doc);
-      doc.addEventListener("click",onPreviewClick,true); doc.addEventListener("dblclick",onPreviewDoubleClick,true); doc.addEventListener("keydown",onPreviewKeyDown,true); doc.addEventListener("focusout",onPreviewFocusOut,true); doc.addEventListener("dragstart",event=>event.preventDefault(),true);
+      doc.addEventListener("click",onPreviewClick,true); doc.addEventListener("dblclick",onPreviewDoubleClick,true); doc.addEventListener("keydown",onPreviewKeyDown,true); doc.addEventListener("focusout",onPreviewFocusOut,true); doc.addEventListener("dragstart",event=>event.preventDefault(),true); doc.addEventListener("selectionchange",rememberTextRange);
       detectSlides(); clearSelection(); updateHistoryButtons();
     }
     function pickEditableBlock(target){
@@ -371,10 +389,10 @@
     }
     function onPreviewDoubleClick(event){ event.preventDefault();event.stopImmediatePropagation();const block=pickEditableBlock(event.target);if(!block)return;selectElement(block);startTextEdit(); }
     function startTextEdit(){
-      if(!isTextElement(state.selected)||state.editing)return; state.editBefore=serializeDocument();state.editing=true;state.selected.setAttribute("contenteditable","true");state.selected.setAttribute(TEMP_PREFIX+"editing","");state.selected.focus();selectionLabel.textContent=elementLabel(state.selected)+" 편집 중";setStatus("글자를 수정한 뒤 다른 곳을 클릭하거나 Esc를 누르세요.");
+      if(!isTextElement(state.selected)||state.editing)return; state.editBefore=serializeDocument();state.savedRange=null;state.editing=true;state.selected.setAttribute("contenteditable","true");state.selected.setAttribute(TEMP_PREFIX+"editing","");state.selected.focus();selectionLabel.textContent=elementLabel(state.selected)+" 편집 중";setStatus("글자를 수정한 뒤 다른 곳을 클릭하거나 Esc를 누르세요.");
     }
     function finishTextEdit(){
-      if(!state.editing)return;const target=state.selected,source=sourceNode(target);state.editing=false;target?.removeAttribute("contenteditable");target?.removeAttribute(TEMP_PREFIX+"editing");if(source&&target)source.innerHTML=target.innerHTML;const after=serializeDocument();
+      if(!state.editing)return;const target=state.selected,source=sourceNode(target);state.editing=false;state.savedRange=null;target?.removeAttribute("contenteditable");target?.removeAttribute(TEMP_PREFIX+"editing");if(source&&target)source.innerHTML=target.innerHTML;const after=serializeDocument();
       if(state.editBefore&&state.editBefore!==after){pushUndo(state.editBefore);setDirty(true);refreshSlidesAfterChange();}state.editBefore="";if(target)selectionLabel.textContent=elementLabel(target)+" 선택됨";setStatus("변경했습니다. 저장되지 않은 변경 배지를 확인하세요.");
     }
     function onPreviewFocusOut(event){ if(!state.editing||event.target!==state.selected)return;setTimeout(()=>{if(getEditorDocument()?.activeElement!==state.selected)finishTextEdit();},0); }
@@ -412,11 +430,33 @@
     function ensurePaperlogyLink(doc){if(doc.getElementById("deeptact-paperlogy-font"))return;const link=doc.createElement("link");link.id="deeptact-paperlogy-font";link.rel="stylesheet";link.href=PAPERLOGY_URL;(doc.head||doc.documentElement).appendChild(link);}
     function setFontFamily(key){if(!isTextElement(state.selected))return;changeDocument(()=>{const nodes=[state.selected,sourceNode(state.selected)];if(key==="original"){nodes.forEach(node=>{node.style.removeProperty("font-family");if(node.getAttribute("style")==="")node.removeAttribute("style");});}else{if(key==="paperlogy"){ensurePaperlogyLink(getEditorDocument());ensurePaperlogyLink(state.sourceDoc);}nodes.forEach(node=>node.style.fontFamily=FONT_STYLES[key]);}},{refreshSlides:false});}
     function detectFontKey(node){const inline=node?.style?.fontFamily||"";if(!inline)return"original";if(/Paperlogy/i.test(inline))return"paperlogy";if(/D2Coding|Consolas|Courier/i.test(inline))return"mono";if(/Myeongjo|Batang|serif/i.test(inline)&&!/sans-serif/i.test(inline))return"serif";return"sans";}
+    // 글자색: 편집 중 드래그한 범위가 있으면 그 글자만, 아니면 요소 전체에 적용한다
+    function rememberTextRange(){if(!state.editing||!state.selected)return;const selection=getEditorDocument()?.getSelection();if(!selection?.rangeCount)return;const range=selection.getRangeAt(0);if(state.selected.contains(range.commonAncestorContainer))state.savedRange=range.cloneRange();}
+    function hasPartialSelection(){return Boolean(state.editing&&state.savedRange&&!state.savedRange.collapsed);}
+    function toHexColor(color){const parts=String(color).match(/[\d.]+/g);if(!parts||parts.length<3)return"#242733";return"#"+parts.slice(0,3).map(value=>Math.max(0,Math.min(255,Math.round(Number(value)))).toString(16).padStart(2,"0")).join("");}
+    function showCurrentColor(hex){el("colorChip").style.background=hex;el("colorPicker").value=hex;el("colorMenu").querySelectorAll(".swatch").forEach(swatch=>swatch.classList.toggle("current",swatch.dataset.color.toLowerCase()===hex.toLowerCase()));}
+    function updateColorScope(){const partial=hasPartialSelection();el("colorScopeLabel").textContent=partial?"선택한 글자에만 적용":"선택한 요소 전체에 적용";if(partial){const start=state.savedRange.startContainer,node=start.nodeType===Node.TEXT_NODE?start.parentElement:start;showCurrentColor(toHexColor(preview.contentWindow.getComputedStyle(node).color));}}
+    function applyTextColor(color){
+      if(!isTextElement(state.selected))return;const hex=/^#[0-9a-f]{6}$/i.test(color)?color.toLowerCase():toHexColor(color);
+      if(hasPartialSelection()){
+        const doc=getEditorDocument(),selection=doc.getSelection(),range=state.savedRange;state.selected.focus();selection.removeAllRanges();selection.addRange(range);
+        doc.execCommand("styleWithCSS",false,true);doc.execCommand("foreColor",false,hex);rememberTextRange();showCurrentColor(hex);setStatus("선택한 글자의 색을 바꿨습니다. 편집을 마치면 변경이 기록됩니다.");return;
+      }
+      changeDocument(()=>{[state.selected,sourceNode(state.selected)].forEach(node=>{node.style.color=hex;});},{refreshSlides:false});showCurrentColor(hex);
+    }
+    function resetTextColor(){
+      if(!isTextElement(state.selected))return;
+      changeDocument(()=>{[state.selected,sourceNode(state.selected)].forEach(node=>{
+        [node,...node.querySelectorAll("[style]")].forEach(item=>{item.style.removeProperty("color");if(item.getAttribute("style")==="")item.removeAttribute("style");});
+        node.querySelectorAll("font[color]").forEach(font=>font.removeAttribute("color"));
+        node.querySelectorAll("span").forEach(span=>{if(![...span.attributes].some(attribute=>!attribute.name.startsWith(TEMP_PREFIX)))span.replaceWith(...span.childNodes);});
+      });},{refreshSlides:false});refreshContextControls();showToast("글자색을 지웠습니다.");
+    }
     function imageWidth(){if(state.selected?.tagName!=="IMG")return 0;return Math.round(state.selected.getBoundingClientRect().width);}
     function setImageWidth(width){if(state.selected?.tagName!=="IMG")return;const safe=Math.max(20,Math.min(4000,Math.round(width)));changeDocument(()=>{[state.selected,sourceNode(state.selected)].forEach(node=>{node.style.width=safe+"px";node.style.height="auto";});},{refreshSlides:false});el("imageWidthInput").value=safe;}
     function resetImageSize(){if(state.selected?.tagName!=="IMG")return;changeDocument(()=>{[state.selected,sourceNode(state.selected)].forEach(node=>{node.style.removeProperty("width");node.style.removeProperty("height");if(node.getAttribute("style")==="")node.removeAttribute("style");});},{refreshSlides:false});refreshContextControls();}
     function toggleImageCenter(){if(state.selected?.tagName!=="IMG")return;changeDocument(()=>{const centered=state.selected.style.marginLeft==="auto"&&state.selected.style.marginRight==="auto";[state.selected,sourceNode(state.selected)].forEach(node=>{if(centered){node.style.removeProperty("display");node.style.removeProperty("margin-left");node.style.removeProperty("margin-right");}else{node.style.display="block";node.style.marginLeft="auto";node.style.marginRight="auto";}if(node.getAttribute("style")==="")node.removeAttribute("style");});},{refreshSlides:false});refreshContextControls();}
-    function refreshContextControls(){const selected=state.selected;if(!selected)return;if(isTextElement(selected)){el("fontSizeReadout").textContent=currentFontSize()+"px";el("fontFamilySelect").value=detectFontKey(selected);}if(selected.tagName==="IMG"){el("imageWidthInput").value=imageWidth();const centered=selected.style.marginLeft==="auto"&&selected.style.marginRight==="auto";el("imageCenterButton").textContent=centered?"가운데 해제":"가운데";}}
+    function refreshContextControls(){const selected=state.selected;if(!selected)return;if(isTextElement(selected)){el("fontSizeReadout").textContent=currentFontSize()+"px";el("fontFamilySelect").value=detectFontKey(selected);showCurrentColor(toHexColor(preview.contentWindow.getComputedStyle(selected).color));}if(selected.tagName==="IMG"){el("imageWidthInput").value=imageWidth();const centered=selected.style.marginLeft==="auto"&&selected.style.marginRight==="auto";el("imageCenterButton").textContent=centered?"가운데 해제":"가운데";}}
     function findSlides(doc){for(const selector of SLIDE_SELECTORS){const matches=[...doc.querySelectorAll(selector)];if(matches.length>=2)return matches;}return[];}
     function detectSlides(){
       const doc=getEditorDocument();if(!doc)return;
@@ -458,6 +498,10 @@
     el("openButton").addEventListener("click",openFile);el("emptyOpenButton").addEventListener("click",openFile);el("sampleButton").addEventListener("click",loadSample);el("downloadButton").addEventListener("click",downloadFile);el("overwriteButton").addEventListener("click",overwriteFile);el("undoButton").addEventListener("click",undo);el("redoButton").addEventListener("click",redo);el("editTextButton").addEventListener("click",startTextEdit);el("moveUpButton").addEventListener("click",()=>moveSelected(-1));el("moveDownButton").addEventListener("click",()=>moveSelected(1));el("duplicateButton").addEventListener("click",duplicateSelected);el("deleteButton").addEventListener("click",deleteSelected);
     el("insertMenuButton").addEventListener("click",event=>{event.stopPropagation();toggleMenu("insertMenu","insertMenuButton");});el("insertMenu").querySelector(".menu-panel").addEventListener("click",event=>{const button=event.target.closest("[data-insert]");if(!button)return;insertAfterSelection(button.dataset.insert);closeMenus();});
     el("fontSmallerButton").addEventListener("click",()=>setFontSize(currentFontSize()-2));el("fontLargerButton").addEventListener("click",()=>setFontSize(currentFontSize()+2));el("fontSizeResetButton").addEventListener("click",resetFontSize);el("fontFamilySelect").addEventListener("change",event=>setFontFamily(event.target.value));
+    el("colorMenuButton").addEventListener("mousedown",event=>event.preventDefault());el("colorMenuButton").addEventListener("click",event=>{event.stopPropagation();updateColorScope();toggleMenu("colorMenu","colorMenuButton");});
+    el("colorMenu").querySelectorAll(".swatch,#colorResetButton").forEach(button=>button.addEventListener("mousedown",event=>event.preventDefault()));
+    el("colorMenu").querySelector(".color-grid").addEventListener("click",event=>{const swatch=event.target.closest(".swatch");if(!swatch)return;applyTextColor(swatch.dataset.color);closeMenus();});
+    el("colorPicker").addEventListener("change",event=>{applyTextColor(event.target.value);closeMenus();});el("colorResetButton").addEventListener("click",()=>{resetTextColor();closeMenus();});
     el("imageSmallerButton").addEventListener("click",()=>setImageWidth(imageWidth()*.9));el("imageLargerButton").addEventListener("click",()=>setImageWidth(imageWidth()*1.1));el("imageWidthInput").addEventListener("change",event=>setImageWidth(Number(event.target.value)));el("imageResetButton").addEventListener("click",resetImageSize);el("imageCenterButton").addEventListener("click",toggleImageCenter);
     slideToggleButton.addEventListener("click",()=>{const willShow=slidesPanel.hidden;slidesPanel.hidden=!willShow;slideToggleButton.setAttribute("aria-expanded",String(willShow));});
     el("slidePanelCloseButton").addEventListener("click",()=>{slidesPanel.hidden=true;slideToggleButton.setAttribute("aria-expanded","false");});
