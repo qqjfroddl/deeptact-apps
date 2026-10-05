@@ -219,5 +219,15 @@
     "pinned": false,
     "url": "https://gonggong-api.vercel.app/",
     "description": "공공데이터로 만들 수 있는 앱 아이디어 30가지를 난이도·분야·검색으로 모아 둔 갤러리 — 외부에서 공유받은 참고 자료"
+  },
+  {
+    "repo": "markdown-live",
+    "code": "MD",
+    "name": "마크다운 바로보기",
+    "category": "강의 도구",
+    "status": "live",
+    "pinned": false,
+    "url": "https://deeptact-markdown.vercel.app",
+    "description": "왼쪽에 글을 쓰면 오른쪽에 마크다운 결과가 바로 보이는 강의용 체험 앱 — 기호 카드·기호 표시·예시(기본·AI 프롬프트·회의록)·글자 크기 조절"
   }
 ]
