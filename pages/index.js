@@ -36,7 +36,11 @@ export async function getStaticProps() {
   const token = process.env.GITHUB_TOKEN;
 
   async function enrich(app) {
+<<<<<<< Updated upstream
     // external: 우리 GitHub에 저장소가 없는 외부 호스팅 앱(예: 박현정 대표 ChatGPT 앱) — repo는 고정(핀) 키로만 쓴다
+=======
+    // external: 우리 GitHub에 저장소가 없는 외부 앱 — repo는 카드 고유 키로만 쓴다
+>>>>>>> Stashed changes
     if (!owner || !app.repo || app.external) {
       return { ...app, owner: owner || null, repoUrl: null };
     }
