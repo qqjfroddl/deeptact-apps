@@ -240,5 +240,15 @@
     "pinned": false,
     "url": "https://deeptact-awards.arcane-corgi-8202.chatgpt.site/admin",
     "description": "우수교육생 커피쿠폰 신청·발송 관리 — 박현정 대표 제작(ChatGPT 앱, 외부 호스팅), 소장님 공동 사용"
+  },
+  {
+    "repo": "led-with-ai",
+    "code": "LED",
+    "name": "인생관리AI앱",
+    "category": "실무 도구",
+    "status": "live",
+    "pinned": false,
+    "url": "https://led-with-ai.vercel.app",
+    "description": "Plan-Do-See 인생관리 — 연간 목표부터 일일 할일·루틴·성찰까지, 에이전트팀 MCP 연동(할일 등록·완료)"
   }
 ]
