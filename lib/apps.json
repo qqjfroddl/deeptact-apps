@@ -232,7 +232,6 @@
   },
   {
     "repo": "deeptact-awards",
-<<<<<<< Updated upstream
     "external": true,
     "code": "AWARD",
     "name": "우수교육생 커피쿠폰",
@@ -241,15 +240,5 @@
     "pinned": false,
     "url": "https://deeptact-awards.arcane-corgi-8202.chatgpt.site/admin",
     "description": "우수교육생 커피쿠폰 신청·발송 관리 — 박현정 대표 제작(ChatGPT 앱, 외부 호스팅), 소장님 공동 사용"
-=======
-    "code": "AWARD",
-    "name": "딥택트 어워즈",
-    "category": "강의 도구",
-    "status": "live",
-    "pinned": false,
-    "external": true,
-    "url": "https://deeptact-awards.arcane-corgi-8202.chatgpt.site/admin",
-    "description": "박현정 대표가 만든 딥택트 어워즈 관리자 화면 — 공동 사용, OpenAI 계정 로그인 필요"
->>>>>>> Stashed changes
   }
 ]

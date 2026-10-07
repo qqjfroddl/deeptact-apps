@@ -13,12 +13,8 @@ export default function AppCard({ app, onTogglePin, isEditing, isEdited, isCusto
   const [showQr, setShowQr] = useState(false);
 
   const openUrl = app.url || app.homepage || "";
-<<<<<<< Updated upstream
   // external 앱은 우리 GitHub에 저장소가 없다 — 404 링크를 만들지 않는다
   const repoUrl = app.external ? "" : app.repoUrl || (app.repo ? `https://github.com/${app.owner || ""}/${app.repo}` : "");
-=======
-  const repoUrl = app.repoUrl || (app.repo && !app.external ? `https://github.com/${app.owner || ""}/${app.repo}` : "");
->>>>>>> Stashed changes
   const updated = app.updated_at
     ? new Date(app.updated_at).toLocaleDateString("ko-KR")
     : "";
