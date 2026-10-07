@@ -229,5 +229,16 @@
     "pinned": false,
     "url": "https://deeptact-markdown.vercel.app",
     "description": "왼쪽에 글을 쓰면 오른쪽에 마크다운 결과가 바로 보이는 강의용 체험 앱 — 기호 카드·기호 표시·예시(기본·AI 프롬프트·회의록)·글자 크기 조절"
+  },
+  {
+    "repo": "deeptact-awards",
+    "external": true,
+    "code": "AWARD",
+    "name": "우수교육생 커피쿠폰",
+    "category": "강의 도구",
+    "status": "live",
+    "pinned": false,
+    "url": "https://deeptact-awards.arcane-corgi-8202.chatgpt.site/admin",
+    "description": "우수교육생 커피쿠폰 신청·발송 관리 — 박현정 대표 제작(ChatGPT 앱, 외부 호스팅), 소장님 공동 사용"
   }
 ]
