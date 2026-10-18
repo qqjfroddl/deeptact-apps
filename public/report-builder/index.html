@@ -83,7 +83,7 @@ const $=id=>document.getElementById(id);
 
 async function loadTemplate(){
   if(template)return template;
-  const r=await fetch('motion-template.html',{cache:'force-cache'});
+  const r=await fetch('/report-builder/motion-template.html',{cache:'force-cache'});
   if(!r.ok)throw Error('템플릿을 불러오지 못했습니다 ('+r.status+'). 새로고침 후 다시 시도해 주세요.');
   template=await r.text();
   if(template.indexOf(OPEN)<0)throw Error('템플릿 형식이 예상과 다릅니다.');
