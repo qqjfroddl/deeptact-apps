@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>모션 보고서 조립기</title>
+<meta name="description" content="AI가 써 준 보고서 내용(JSON)을 붙여 넣으면 차트·시뮬레이터가 들어간 3쪽 HTML 발표 자료로 조립해 내려받습니다.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{--navy:#2E3142;--teal:#3C6D71;--bg:#F2F1EF;--card:#fff;--line:#D9D6D0;--ink:#222;--note:#666;--err:#B42318;--errbg:#FEF3F2;--ok:#2F6F4F;--okbg:#EEF6F1}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Pretendard,system-ui,sans-serif;word-break:keep-all;line-height:1.6}
+.wrap{max-width:1100px;margin:0 auto;padding:32px 16px 64px}
+h1{margin:0;font-size:30px;color:var(--navy);letter-spacing:-.02em}
+.lead{margin:6px 0 24px;color:var(--note);font-size:16px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.step{background:var(--card);border:1px solid var(--line);padding:14px 16px;font-size:15px}
+.step b{display:block;color:var(--teal);font-size:14px}
+.box{background:var(--card);border:1px solid var(--line);padding:20px}
+label{font-weight:700;color:var(--navy)}
+textarea{width:100%;height:240px;margin-top:8px;padding:12px;border:1px solid var(--line);font:13px/1.5 ui-monospace,Consolas,monospace;resize:vertical;background:#FCFCFB}
+textarea:focus{outline:2px solid var(--teal);outline-offset:1px}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+button{font:inherit;font-weight:700;font-size:15px;padding:10px 18px;border:1.5px solid var(--navy);background:#fff;color:var(--navy);cursor:pointer}
+button.main{background:var(--navy);color:#fff}
+button:disabled{opacity:.4;cursor:default}
+button:not(:disabled):hover{background:var(--teal);border-color:var(--teal);color:#fff}
+#msg{margin-top:14px;padding:12px 14px;font-size:15px;display:none;white-space:pre-wrap}
+#msg.err{display:block;background:var(--errbg);color:var(--err);border-left:4px solid var(--err)}
+#msg.ok{display:block;background:var(--okbg);color:var(--ok);border-left:4px solid var(--ok)}
+#fixWrap{display:none;margin-top:10px}
+.pv{margin-top:20px;display:none}
+.pv h2{font-size:18px;margin:0 0 8px;color:var(--navy)}
+.frame{position:relative;width:100%;aspect-ratio:16/9;background:#161C20;border:1px solid var(--line)}
+.frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.small{font-size:14px;color:var(--note);margin-top:8px}
+footer{margin-top:28px;font-size:13px;color:var(--note)}
+@media (max-width:720px){.steps{grid-template-columns:1fr}h1{font-size:24px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>모션 보고서 조립기</h1>
+  <p class="lead">AI가 써 준 보고서 내용(JSON)을 붙여 넣으면, 차트·시뮬레이터가 들어간 3쪽 HTML 발표 자료로 조립합니다.</p>
+
+  <div class="steps">
+    <div class="step"><b>1 · AI에게</b>스킬을 넣은 AI에 <code>주제: ○○</code> 한 줄을 보냅니다.</div>
+    <div class="step"><b>2 · 붙여 넣기</b>AI가 준 JSON 코드 블록을 복사해 아래 칸에 붙여 넣습니다.</div>
+    <div class="step"><b>3 · 내려받기</b>미리보기를 확인하고 HTML 파일을 내려받습니다.</div>
+  </div>
+
+  <div class="box">
+    <label for="src">AI가 준 JSON</label>
+    <textarea id="src" spellcheck="false" placeholder='{ "version": 1, "topic": "...", ... }  ← AI 답변의 코드 블록을 통째로 붙여 넣으세요. ``` 표시가 섞여도 괜찮습니다.'></textarea>
+    <div class="row">
+      <button class="main" id="build">조립하기</button>
+      <button id="download" disabled>HTML 내려받기</button>
+      <button id="open" disabled>새 창에서 크게 보기</button>
+      <button id="sample">예시 넣어 보기</button>
+    </div>
+    <div id="msg"></div>
+    <div id="fixWrap">
+      <div class="small">아래 버튼을 누르면 수정 요청 문장이 복사됩니다. AI 대화창에 그대로 붙여 넣으세요.</div>
+      <div class="row"><button id="copyFix">AI에게 보낼 수정 요청 복사</button></div>
+    </div>
+  </div>
+
+  <div class="pv" id="pv">
+    <h2>미리보기</h2>
+    <div class="frame"><iframe id="frame" title="미리보기"></iframe></div>
+    <p class="small">미리보기 안을 한 번 누른 뒤 → ← 로 쪽을 넘깁니다 · O 쪽 목록 · D 자동 시연 · Esc 닫기</p>
+  </div>
+
+  <footer>내용은 이 브라우저 안에서만 조립되며 어디에도 전송·저장되지 않습니다. 글꼴: Pretendard (SIL OFL 1.1). 만든 곳: 딥택트러닝</footer>
+</div>
+
+<script>
+'use strict';
+const OPEN='<script type="application/json" id="presentation-data">';
+const CLOSE='</'+'script>';
+let template=null,built=null,builtName='presentation.html',lastFix='';
+const $=id=>document.getElementById(id);
+
+async function loadTemplate(){
+  if(template)return template;
+  const r=await fetch('motion-template.html',{cache:'force-cache'});
+  if(!r.ok)throw Error('템플릿을 불러오지 못했습니다 ('+r.status+'). 새로고침 후 다시 시도해 주세요.');
+  template=await r.text();
+  if(template.indexOf(OPEN)<0)throw Error('템플릿 형식이 예상과 다릅니다.');
+  return template;
+}
+function splitTemplate(t){const a=t.indexOf(OPEN)+OPEN.length,b=t.indexOf(CLOSE,a);return [t.slice(0,a),t.slice(a,b),t.slice(b)]}
+
+function extractJson(raw){
+  let s=raw.replace(/^\uFEFF/,'').trim();
+  const fence=s.match(/```(?:json)?\s*([\s\S]*?)```/i);if(fence)s=fence[1].trim();
+  const a=s.indexOf('{'),b=s.lastIndexOf('}');
+  if(a<0||b<a)throw Error('JSON을 찾지 못했습니다. AI 답변에서 { 로 시작해 } 로 끝나는 부분을 붙여 넣어 주세요.');
+  s=s.slice(a,b+1).replace(/[\u201C\u201D]/g,'"');
+  try{return JSON.parse(s)}catch(e){
+    const m=String(e.message).match(/position (\d+)/);let where='';
+    if(m){const p=+m[1],line=s.slice(0,p).split('\n').length;where=' ('+line+'번째 줄 근처: '+s.slice(Math.max(0,p-30),p+30).replace(/\s+/g,' ')+')'}
+    throw Object.assign(Error('JSON 문법 오류입니다'+where+'. 쉼표·따옴표·괄호가 빠졌을 수 있습니다.'),{fix:'JSON 문법 오류가 있습니다: '+e.message+where+'. 형식을 고쳐서 JSON 코드 블록 하나로만 다시 주세요.'});
+  }
+}
+
+function show(kind,text){const m=$('msg');m.className=kind;m.textContent=text}
+function setFix(text){lastFix=text||'';$('fixWrap').style.display=text?'block':'none'}
+function reset(){built=null;$('download').disabled=true;$('open').disabled=true}
+
+function checkFrame(){
+  return new Promise(res=>{
+    const f=$('frame');let done=false;
+    const finish=v=>{if(!done){done=true;res(v)}};
+    f.onload=()=>setTimeout(()=>{
+      try{const box=f.contentDocument.querySelector('.error-box');finish(box?box.innerText.replace(/\s+/g,' ').trim():null)}catch(e){finish(null)}
+    },300);
+    setTimeout(()=>finish(null),5000);
+  });
+}
+
+async function build(){
+  reset();setFix('');show('ok','조립 중입니다…');
+  try{
+    const data=extractJson($('src').value);
+    if(!data||typeof data!=='object'||Array.isArray(data))throw Error('JSON 최상위가 객체({ … })가 아닙니다.');
+    const t=await loadTemplate(),[head,,tail]=splitTemplate(t);
+    const body='\n'+JSON.stringify(data,null,2).replace(/</g,'\\u003c')+'\n';
+    const html=head+body+tail;
+    $('pv').style.display='block';
+    const wait=checkFrame();$('frame').srcdoc=html;
+    const err=await wait;
+    if(err){
+      show('err','자료 검사에서 걸렸습니다.\n'+err+'\n\n대부분 글자 수 초과나 숫자 범위 문제입니다. 아래 버튼으로 AI에게 수정을 요청하세요.');
+      setFix('조립기 검사에서 다음 오류가 났습니다: "'+err+'". 스킬 규칙(글자 수·배열 개수·계산식 범위)에 맞게 고쳐서 JSON 코드 블록 하나로만 다시 주세요.');
+      return;
+    }
+    built=html;
+    builtName=(String(data.topic||'presentation').replace(/[\\/:*?"<>|]+/g,' ').trim().slice(0,40)||'presentation')+'.html';
+    $('download').disabled=false;$('open').disabled=false;
+    show('ok','조립 완료 — 「'+(data.topic||'')+'」. 미리보기를 확인한 뒤 내려받으세요.');
+  }catch(e){
+    show('err',e.message);setFix(e.fix||'');
+  }
+}
+
+$('build').onclick=build;
+$('download').onclick=()=>{if(!built)return;const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([built],{type:'text/html;charset=utf-8'}));a.download=builtName;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)};
+$('open').onclick=()=>{if(!built)return;window.open(URL.createObjectURL(new Blob([built],{type:'text/html;charset=utf-8'})),'_blank')};
+$('copyFix').onclick=async()=>{try{await navigator.clipboard.writeText(lastFix);$('copyFix').textContent='복사했습니다'}catch(e){prompt('아래 문장을 복사하세요',lastFix)}setTimeout(()=>$('copyFix').textContent='AI에게 보낼 수정 요청 복사',1500)};
+$('sample').onclick=async()=>{try{const [,j]=splitTemplate(await loadTemplate());$('src').value=j.trim();build()}catch(e){show('err',e.message)}};
+$('src').addEventListener('input',reset);
+</script>
+</body>
+</html>

@@ -83,6 +83,16 @@ git push -u origin main
 
 ---
 
+## 🧩 모션 보고서 조립기
+
+- 운영 주소: `https://deeptact-apps.vercel.app/report-builder/`
+- 정본: `public/report-builder/index.html` + `motion-template.html`(원본 템플릿, 폰트 내장 — 수정 금지)
+- 용도: 학습자 선물용 스킬 `motion-html-report`(md)로 AI가 만든 JSON을 붙여 넣으면 템플릿 JSON 영역만 교체해 3쪽 HTML을 내려받는다
+- 구조: 서버·DB 없음. 브라우저 안에서만 조립하고 엔진 자체 검사(.error-box)로 오류를 잡는다
+- 스킬 md 정본: OneDrive `AI-Team/shared/_incoming/자료/motion-html-report/SKILL.md` (2026-10-18 소장님 지시 — 제미나이가 HTML 재작성 중 코드 손상 → JSON만 받는 구조로 전환)
+
+---
+
 ## ✏️ HTML 편집기 V2
 
 - 운영 주소: `https://deeptact-apps.vercel.app/html-editor`
