@@ -11,6 +11,17 @@ export default function AppCard({ app, onTogglePin, isEditing, isEdited, isCusto
   const [copied, setCopied] = useState(false);
   const [qrSrc, setQrSrc] = useState("");
   const [showQr, setShowQr] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(-1);
+
+  // 한 앱에 딸린 다른 주소(예: 인생관리AI앱의 사용 신청 페이지) — 제안서 대시보드의 '관련 문서' 버튼과 같은 원리
+  const links = Array.isArray(app.links) ? app.links.filter((l) => l && l.url) : [];
+
+  function copyLink(url, index) {
+    navigator.clipboard.writeText(url).then(() => {
+      setCopiedLink(index);
+      setTimeout(() => setCopiedLink(-1), 1500);
+    });
+  }
 
   const openUrl = app.url || app.homepage || "";
   // external 앱은 우리 GitHub에 저장소가 없다 — 404 링크를 만들지 않는다.
@@ -91,6 +102,33 @@ export default function AppCard({ app, onTogglePin, isEditing, isEdited, isCusto
         <div className="url-box" title={openUrl}>
           {openUrl}
         </div>
+      )}
+
+      {links.length > 0 && (
+        <ul className="sub-links" aria-label={`${app.name} 관련 링크`}>
+          {links.map((link, i) => (
+            <li key={link.url} className="sub-link">
+              <a href={link.url} target="_blank" rel="noopener noreferrer" className="sub-link-open" title={link.url}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M15 3h6v6" /><path d="M10 14 21 3" /><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                </svg>
+                <span className="sub-link-text">
+                  <span className="sub-link-label">{link.label || "링크"}</span>
+                  {link.note && <span className="sub-link-note">{link.note}</span>}
+                </span>
+              </a>
+              <button
+                type="button"
+                className="sub-link-copy"
+                onClick={() => copyLink(link.url, i)}
+                title={`${link.label || "링크"} 주소 복사`}
+                aria-label={`${link.label || "링크"} 주소 복사`}
+              >
+                {copiedLink === i ? "복사됨" : "복사"}
+              </button>
+            </li>
+          ))}
+        </ul>
       )}
 
       <div className="card-actions">

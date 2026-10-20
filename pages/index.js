@@ -738,6 +738,57 @@ export default function Home({ apps: baselineApps }) {
           overflow: hidden;
           text-overflow: ellipsis;
         }
+        /* 한 앱에 딸린 관련 링크 줄 (apps.json의 links) */
+        .sub-links {
+          list-style: none;
+          margin: 0;
+          padding: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+        .sub-link {
+          display: flex;
+          align-items: stretch;
+          border: 1px solid var(--border-strong);
+          border-radius: 8px;
+          overflow: hidden;
+        }
+        .sub-link-open {
+          flex: 1;
+          min-width: 0;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 12px;
+          color: var(--accent-light);
+          text-decoration: none;
+          transition: background 0.15s;
+        }
+        .sub-link-open:hover { background: var(--chip-bg); }
+        .sub-link-open svg { flex: none; }
+        .sub-link-text { min-width: 0; display: flex; flex-direction: column; }
+        .sub-link-label { font-size: 13px; font-weight: 600; }
+        .sub-link-note {
+          font-size: 11px;
+          color: var(--muted);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .sub-link-copy {
+          flex: none;
+          padding: 0 12px;
+          font: inherit;
+          font-size: 12px;
+          color: var(--text-dim);
+          background: transparent;
+          border: 0;
+          border-left: 1px solid var(--border);
+          cursor: pointer;
+          transition: background 0.15s;
+        }
+        .sub-link-copy:hover { background: var(--chip-bg); }
         .card-actions {
           display: flex;
           gap: 8px;

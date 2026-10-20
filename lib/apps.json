@@ -249,6 +249,13 @@
     "status": "live",
     "pinned": false,
     "url": "https://led-with-ai.vercel.app",
-    "description": "Plan-Do-See 인생관리 — 연간 목표부터 일일 할일·루틴·성찰까지, 에이전트팀 MCP 연동(할일 등록·완료)"
+    "description": "Plan-Do-See 인생관리 — 연간 목표부터 일일 할일·루틴·성찰까지, 에이전트팀 MCP 연동(할일 등록·완료)",
+    "links": [
+      {
+        "label": "사용 신청",
+        "url": "https://led-with-ai.vercel.app/apply",
+        "note": "신청자에게 보내는 링크 · 신청 목록은 관리자 '사용 신청' 탭"
+      }
+    ]
   }
 ]

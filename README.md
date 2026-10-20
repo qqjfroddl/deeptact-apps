@@ -73,6 +73,7 @@ git push -u origin main
 | `url` | 선택 | 배포 URL. 비워두면 GitHub `homepage` 필드 자동 사용 |
 | `description` | 선택 | 한 줄 설명. 비워두면 GitHub repo description 자동 사용 |
 | `version` | 선택 | 카드 메타에 "v1 · 날짜" 형태로 표시 |
+| `links` | 선택 | 한 앱에 딸린 다른 주소 목록. `[{ "label": "사용 신청", "url": "…", "note": "한 줄 설명" }]` — 카드 안에 열기·복사 줄로 붙는다 (제안서 대시보드의 관련 문서 버튼과 같은 원리). 관리자 키 같은 비밀값은 넣지 않는다(공개 저장소) |
 
 ### GitHub API 가 자동으로 채워주는 것
 
