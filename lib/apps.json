@@ -171,6 +171,16 @@
     "description": "POS 매출리포트 엑셀·CSV를 올리면 매출·시간대·메뉴·결제를 자동 분석 (매장 사장님용)"
   },
   {
+    "repo": "gimpo-fire-dashboard",
+    "code": "FIRE",
+    "name": "김포시 화재 통계 대시보드",
+    "category": "실무 도구",
+    "status": "live",
+    "pinned": false,
+    "url": "https://deeptact-apps.vercel.app/gimpo-fire-dashboard/",
+    "description": "국가화재정보 화재 통계 엑셀을 올리면 김포 읍면동 단계구분도·주소별 화재 지점·시간대·장소·피해 차트로 분석 (김포소방서용)"
+  },
+  {
     "repo": "arabic-bible-memorizer",
     "code": "ABM",
     "name": "아랍어 말씀 암송",
