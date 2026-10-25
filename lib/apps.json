@@ -267,5 +267,16 @@
         "note": "신청자에게 보내는 링크 · 신청 목록은 관리자 '사용 신청' 탭"
       }
     ]
+  },
+  {
+    "repo": "1in8b",
+    "external": true,
+    "code": "1IN8B",
+    "name": "80억 분의 1 (1 in 8 Billion)",
+    "category": "게임",
+    "status": "live",
+    "pinned": false,
+    "url": "https://1in8b.life/ko/",
+    "description": "지금 태어나는 아기 중 한 명으로 무작위로 태어나 172개국 실제 통계 속에서 한 생을 살아 보는 인생 시뮬레이션 게임 — 무료·가입 없음, 15세 이상. 외부 제작"
   }
 ]
