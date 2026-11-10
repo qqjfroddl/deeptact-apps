@@ -24,6 +24,8 @@ export default function AppCard({ app, onTogglePin, isEditing, isEdited, isCusto
   }
 
   const openUrl = app.url || app.homepage || "";
+  // QR이 앱 첫 화면이 아닌 다른 주소를 가리켜야 할 때(예: 인생관리AI앱 → 사용 신청 페이지) apps.json의 qrUrl로 지정
+  const qrTarget = app.qrUrl || openUrl;
   // external 앱은 우리 GitHub에 저장소가 없다 — 404 링크를 만들지 않는다.
   // 폴백도 owner가 있을 때만 — 없이 만들면 github.com//repo 깨진 주소가 된다(GITHUB_OWNER 미설정 환경).
   const repoUrl = app.external ? "" : app.repoUrl || (app.repo && app.owner ? `https://github.com/${app.owner}/${app.repo}` : "");
@@ -40,11 +42,11 @@ export default function AppCard({ app, onTogglePin, isEditing, isEdited, isCusto
   }
 
   useEffect(() => {
-    if (!showQr || !openUrl) return;
+    if (!showQr || !qrTarget) return;
     (async () => {
       try {
         const QR = (await import("qrcode")).default;
-        const dataUrl = await QR.toDataURL(openUrl, {
+        const dataUrl = await QR.toDataURL(qrTarget, {
           width: 240,
           margin: 1,
           color: { dark: "#1F2933", light: "#ffffff" },
@@ -54,7 +56,7 @@ export default function AppCard({ app, onTogglePin, isEditing, isEdited, isCusto
         // QR 생성 실패는 조용히 무시
       }
     })();
-  }, [showQr, openUrl]);
+  }, [showQr, qrTarget]);
 
   return (
     <article className="app-card">
@@ -189,8 +191,8 @@ export default function AppCard({ app, onTogglePin, isEditing, isEdited, isCusto
           type="button"
           className="icon-btn"
           onClick={() => setShowQr((v) => !v)}
-          disabled={!openUrl}
-          title="QR 코드"
+          disabled={!qrTarget}
+          title={app.qrUrl ? `QR 코드 — ${app.qrUrl}` : "QR 코드"}
           aria-label="QR 코드"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
