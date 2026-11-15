@@ -279,5 +279,23 @@
     "pinned": false,
     "url": "https://1in8b.life/ko/",
     "description": "지금 태어나는 아기 중 한 명으로 무작위로 태어나 172개국 실제 통계 속에서 한 생을 살아 보는 인생 시뮬레이션 게임 — 무료·가입 없음, 15세 이상. 외부 제작"
+  },
+  {
+    "repo": "koikos-site",
+    "code": "KOIKOS",
+    "name": "코이코스 AI 신청 사이트 관리",
+    "category": "실무 도구",
+    "status": "live",
+    "pinned": false,
+    "url": "https://koikosai.com/admin",
+    "qrUrl": "https://koikosai.com",
+    "description": "코이코스 AI 먼저 써 보기 신청자 명단·채널별 숫자·CSV 내려받기 (관리 비밀번호로 로그인)",
+    "links": [
+      {
+        "label": "신청 페이지",
+        "url": "https://koikosai.com",
+        "note": "신청자에게 보내는 주소"
+      }
+    ]
   }
 ]
