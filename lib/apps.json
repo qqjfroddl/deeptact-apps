@@ -297,5 +297,16 @@
         "note": "신청자에게 보내는 주소"
       }
     ]
+  },
+  {
+    "repo": "alldown",
+    "external": true,
+    "code": "DOWN",
+    "name": "AllDown (영상 저장 크롬 확장)",
+    "category": "실무 도구",
+    "status": "live",
+    "pinned": false,
+    "url": "https://alldown.rinooks.workers.dev/",
+    "description": "영상 위에 마우스를 올리면 나타나는 저장 버튼으로 페이스북 피드 등 주소 찾기 어려운 영상도 PC에 저장 — 원본이 없으면 그 영상만 녹화. 크롬 확장(ZIP 설치)·무료·계정 없음. 외부 제작"
   }
 ]
