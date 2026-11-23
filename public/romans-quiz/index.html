@@ -29,7 +29,8 @@
   * { box-sizing: border-box; }
   html, body { margin: 0; }
   /* 폰 브라우저(삼성 인터넷·글자 크기 확대)에서 어떤 요소도 화면 폭을 넘지 않게 한 번 더 막는다 */
-  html, body { max-width: 100%; overflow-x: hidden; }
+  /* hidden은 상단 탭 붙이기(sticky)를 깨므로 clip을 쓴다. clip을 모르는 옛 브라우저만 hidden으로 물러선다 */
+  html, body { max-width: 100%; overflow-x: hidden; overflow-x: clip; }
   .wrap, .card, section { min-width: 0; max-width: 100%; }
   .card * { max-width: 100%; }
   .qtext, .verse-text, .list-item { overflow-wrap: anywhere; }
@@ -44,21 +45,42 @@
     -webkit-tap-highlight-color: transparent;
   }
   button, input, textarea, select { font: inherit; color: inherit; }
-  .wrap { max-width: 640px; margin: 0 auto; padding: 16px 16px 96px; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 8px 16px 40px; }
   header { padding: 8px 0 12px; }
   header h1 { font-size: 22px; font-weight: 700; margin: 0; }
   header p { margin: 4px 0 0; color: var(--muted); font-size: 15px; }
 
-  /* 하단 탭 */
+  /* 상단 탭 — 폰 하단 바에 가려지지 않게 위에 붙인다 (2026-11-24 소장님 요청) */
   nav.tabs {
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
-    display: flex; background: var(--card); border-top: 1px solid var(--line);
-    padding-bottom: env(safe-area-inset-bottom);
+    position: sticky; top: 0; z-index: 10;
+    display: flex; gap: 6px; padding: 8px 0; margin: 0 0 12px;
+    background: var(--surface);
   }
   nav.tabs button {
-    flex: 1; border: 0; background: none; padding: 12px 0 14px; font-size: 16px; color: var(--muted); cursor: pointer;
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+    border: 1px solid var(--line); background: var(--card); border-radius: var(--r-m);
+    padding: 10px 0; font-size: 16px; color: var(--muted); cursor: pointer;
   }
-  nav.tabs button[aria-selected="true"] { color: var(--accent); font-weight: 700; box-shadow: inset 0 3px 0 var(--accent); }
+  nav.tabs button[data-tab="quiz"] { --c: #3C6D71; --c-soft: #E4EEEE; }
+  nav.tabs button[data-tab="verse"] { --c: #B7791F; --c-soft: #FBF1DE; }
+  nav.tabs button[data-tab="stats"] { --c: #4C5FA8; --c-soft: #E6E9F6; }
+  nav.tabs button[aria-selected="true"] { color: #fff; background: var(--c); border-color: var(--c); font-weight: 700; }
+
+  /* 탭별 색 — 섹션 안의 강조색을 탭 색으로 바꾼다 */
+  #tab-quiz { --accent: #3C6D71; --accent-soft: #E4EEEE; }
+  #tab-verse { --accent: #B7791F; --accent-soft: #FBF1DE; }
+  #tab-stats { --accent: #4C5FA8; --accent-soft: #E6E9F6; }
+  section .card { border-top: 4px solid var(--accent); }
+
+  /* 아이콘 — 한 세트(선 아이콘)·한 크기·글자색 */
+  .ico { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .h-ico { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 10px; background: var(--accent-soft); color: var(--accent); margin-right: 8px; vertical-align: middle; }
+  .h-ico .ico { width: 18px; height: 18px; }
+  .card h2 { display: flex; align-items: center; }
+  .brand { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 10px; background: #3C6D71; color: #fff; margin-right: 10px; }
+  header h1 { display: flex; align-items: center; }
+  .speed .chips { flex-wrap: nowrap; gap: 6px; margin-top: 6px; }
+  .speed .chip { flex: 1; padding: 8px 0; text-align: center; white-space: nowrap; }
 
   .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-l); padding: 20px; margin-bottom: 16px; }
   .card h2 { font-size: 18px; font-weight: 700; margin: 0 0 12px; }
@@ -67,6 +89,7 @@
   .stack > * + * { margin-top: 12px; }
 
   .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     border: 1px solid var(--line); background: var(--card); border-radius: var(--r-m);
     padding: 12px 16px; font-size: 16px; cursor: pointer; min-height: 48px;
   }
@@ -141,14 +164,20 @@
 <body>
 <div class="wrap">
   <header>
-    <h1>로마서 퀴즈 · 말씀 암송</h1>
+    <h1><span class="brand" data-icon="book"></span>로마서 퀴즈 · 말씀 암송</h1>
     <p>문제를 풀고, 말씀을 외우고, 틀린 것만 다시. 기록은 이 폰에 저장됩니다.</p>
   </header>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-tab="quiz" aria-selected="true" data-icon="help">퀴즈</button>
+    <button role="tab" data-tab="verse" aria-selected="false" data-icon="book">암송</button>
+    <button role="tab" data-tab="stats" aria-selected="false" data-icon="chart">기록</button>
+  </nav>
 
   <!-- 퀴즈 탭 -->
   <section id="tab-quiz">
     <div id="quiz-setup" class="card stack">
-      <h2>퀴즈 풀기</h2>
+      <h2 data-icon="help">퀴즈 풀기</h2>
       <div>
         <div class="muted">범위</div>
         <div class="chips" id="range-chips"></div>
@@ -160,8 +189,8 @@
           <button class="chip" data-order="shuffle" aria-pressed="false">섞어서</button>
         </div>
       </div>
-      <button class="btn primary block" id="quiz-start">시작하기</button>
-      <button class="btn block" id="browse-start">정답 가리고 훑어보기</button>
+      <button class="btn primary block" id="quiz-start" data-icon="play">시작하기</button>
+      <button class="btn block" id="browse-start" data-icon="list">정답 가리고 훑어보기</button>
     </div>
 
     <div id="quiz-play" hidden>
@@ -172,31 +201,31 @@
         <div class="answers" id="q-answers"></div>
         <div id="q-verdict" class="verdict" hidden></div>
         <div class="row" id="q-actions">
-          <button class="btn primary" id="q-check" style="flex:1">확인</button>
-          <button class="btn" id="q-reveal">정답 보기</button>
+          <button class="btn primary" id="q-check" data-icon="check" style="flex:1">확인</button>
+          <button class="btn" id="q-reveal" data-icon="eye">정답 보기</button>
         </div>
         <div class="row" id="q-after" hidden>
           <button class="btn ghost" id="q-override" hidden>맞은 걸로 할게요</button>
           <button class="btn primary" id="q-next" style="flex:1">다음 문제</button>
         </div>
       </div>
-      <button class="btn ghost block" id="q-quit">그만하고 결과 보기</button>
+      <button class="btn ghost block" id="q-quit" data-icon="flag">그만하고 결과 보기</button>
     </div>
 
     <div id="quiz-result" class="card stack" hidden>
-      <h2>결과</h2>
+      <h2 data-icon="award">결과</h2>
       <div><span class="score" id="r-score"></span> <span class="muted" id="r-detail"></span></div>
       <div id="r-wrong"></div>
-      <button class="btn primary block" id="r-retry-wrong">틀린 문제만 다시</button>
-      <button class="btn block" id="r-home">처음으로</button>
+      <button class="btn primary block" id="r-retry-wrong" data-icon="rotate">틀린 문제만 다시</button>
+      <button class="btn block" id="r-home" data-icon="home">처음으로</button>
     </div>
 
     <div id="quiz-browse" class="card" hidden>
       <div class="row" style="justify-content:space-between;margin-bottom:8px">
-        <h2 style="margin:0">훑어보기</h2>
+        <h2 style="margin:0" data-icon="list">훑어보기</h2>
         <div class="row">
           <button class="btn ghost" id="b-toggle">정답 모두 보기</button>
-          <button class="btn" id="b-close">닫기</button>
+          <button class="btn" id="b-close" data-icon="x">닫기</button>
         </div>
       </div>
       <p class="muted" style="margin:0 0 8px">문제를 누르면 정답이 보입니다.</p>
@@ -208,12 +237,13 @@
   <section id="tab-verse" hidden>
     <div id="verse-list-card" class="card">
       <div class="row" style="justify-content:space-between;margin-bottom:8px">
-        <h2 style="margin:0">예수 그리스도에 관한 말씀 15구절</h2>
+        <h2 style="margin:0" data-icon="book">예수 그리스도에 관한 말씀 15구절</h2>
       </div>
       <div class="row" style="margin-bottom:8px">
-        <button class="btn" id="v-play-all">전체 연속 듣기</button>
-        <button class="btn" id="v-ref-quiz">장절 맞히기</button>
+        <button class="btn" id="v-play-all" data-icon="headphones"><span class="lbl">전체 연속 듣기</span></button>
+        <button class="btn" id="v-ref-quiz" data-icon="target">장절 맞히기</button>
       </div>
+      <div class="speed" style="margin-bottom:8px"><span class="muted">듣기 속도</span><div class="chips speed-chips"></div></div>
       <div id="v-list"></div>
     </div>
 
@@ -229,24 +259,25 @@
         </div>
         <div class="verse-text" id="vd-text"></div>
         <p class="muted" style="margin:0">가려진 부분을 누르면 잠깐 보입니다.</p>
+        <div class="speed"><span class="muted">듣기 속도</span><div class="chips speed-chips"></div></div>
         <div class="row">
-          <button class="btn" id="vd-speak">듣기</button>
-          <button class="btn" id="vd-memo">외웠어요</button>
+          <button class="btn" id="vd-speak" data-icon="volume">듣기</button>
+          <button class="btn" id="vd-memo" data-icon="star"><span class="lbl">외웠어요</span></button>
         </div>
       </div>
       <div class="card stack">
-        <h2>직접 써 보기</h2>
+        <h2 data-icon="pen">직접 써 보기</h2>
         <textarea id="vd-input" placeholder="장절만 보고 기억나는 대로 써 보세요"></textarea>
         <div class="row">
-          <button class="btn primary" id="vd-compare" style="flex:1">맞춰 보기</button>
-          <button class="btn" id="vd-clear">지우기</button>
+          <button class="btn primary" id="vd-compare" data-icon="check" style="flex:1">맞춰 보기</button>
+          <button class="btn" id="vd-clear" data-icon="x">지우기</button>
         </div>
         <div id="vd-result" hidden></div>
       </div>
       <div class="row">
-        <button class="btn" id="vd-prev" style="flex:1">이전 구절</button>
-        <button class="btn" id="vd-list" style="flex:1">목록</button>
-        <button class="btn" id="vd-next" style="flex:1">다음 구절</button>
+        <button class="btn" id="vd-prev" data-icon="left" style="flex:1">이전</button>
+        <button class="btn" id="vd-list" data-icon="list" style="flex:1">목록</button>
+        <button class="btn" id="vd-next" data-icon="right" style="flex:1">다음</button>
       </div>
     </div>
 
@@ -265,21 +296,16 @@
   <!-- 기록 탭 -->
   <section id="tab-stats" hidden>
     <div class="card stack">
-      <h2>내 학습 기록</h2>
+      <h2 data-icon="chart">내 학습 기록</h2>
       <div id="s-summary"></div>
       <div id="s-weak"></div>
-      <button class="btn block" id="s-reset">기록 모두 지우기</button>
+      <button class="btn block" id="s-reset" data-icon="trash">기록 모두 지우기</button>
     </div>
   </section>
 
   <footer>로마서 문제지 40문항 · 예수 그리스도에 관한 성경 말씀 15구절</footer>
 </div>
 
-<nav class="tabs" role="tablist">
-  <button role="tab" data-tab="quiz" aria-selected="true">퀴즈</button>
-  <button role="tab" data-tab="verse" aria-selected="false">암송</button>
-  <button role="tab" data-tab="stats" aria-selected="false">기록</button>
-</nav>
 
 <script>
 // ───────── 데이터 ─────────
@@ -592,7 +618,7 @@ $('vd-level').addEventListener('input', renderVerseText);
 
 function renderMemoBtn() {
   const on = state.memo.includes(vIndex);
-  $('vd-memo').textContent = on ? '외움 표시 취소' : '외웠어요';
+  $('vd-memo').querySelector('.lbl').textContent = on ? '외움 표시 취소' : '외웠어요';
   $('vd-memo').classList.toggle('primary', !on);
 }
 $('vd-memo').addEventListener('click', () => {
@@ -626,28 +652,52 @@ $('vd-compare').addEventListener('click', () => {
 
 // ───────── 듣기 ─────────
 const canSpeak = 'speechSynthesis' in window;
-function speak(texts, onEnd) {
+const RATES = [1, 1.25, 1.5, 1.75, 2];
+let playingAll = false;
+let playIdx = 0;
+
+// items: [{ text, idx }] — idx는 연속 듣기 중 지금 몇 번 구절인지 기억해 속도를 바꿔도 그 자리에서 다시 읽기 위함
+function speak(items, onEnd) {
   if (!canSpeak) { alert('이 브라우저는 읽어 주기를 지원하지 않습니다.'); return; }
   speechSynthesis.cancel();
   const voice = speechSynthesis.getVoices().find((v) => v.lang && v.lang.startsWith('ko'));
-  texts.forEach((t, i) => {
-    const u = new SpeechSynthesisUtterance(t);
-    u.lang = 'ko-KR'; u.rate = 0.9;
+  items.forEach((item, i) => {
+    const u = new SpeechSynthesisUtterance(item.text);
+    u.lang = 'ko-KR';
+    u.rate = state.rate || 1;
     if (voice) u.voice = voice;
-    if (i === texts.length - 1 && onEnd) u.onend = onEnd;
+    u.onstart = () => { if (item.idx !== undefined) playIdx = item.idx; };
+    if (i === items.length - 1 && onEnd) u.onend = onEnd;
     speechSynthesis.speak(u);
   });
 }
-function stopSpeak() { if (canSpeak) speechSynthesis.cancel(); playingAll = false; $('v-play-all').textContent = '전체 연속 듣기'; }
-$('vd-speak').addEventListener('click', () => { const v = VERSES[vIndex]; speak([v.ref, v.t]); });
-let playingAll = false;
-$('v-play-all').addEventListener('click', () => {
-  if (playingAll) { stopSpeak(); return; }
+function stopSpeak() {
+  if (canSpeak) speechSynthesis.cancel();
+  playingAll = false;
+  $('v-play-all').querySelector('.lbl').textContent = '전체 연속 듣기';
+}
+function playAllFrom(start) {
   playingAll = true;
-  $('v-play-all').textContent = '듣기 멈추기';
-  speak(VERSES.flatMap((v, i) => [`${i + 1}번. ${v.ref}`, v.t]), () => stopSpeak());
-});
-if (canSpeak) speechSynthesis.onvoiceschanged = () => {};
+  $('v-play-all').querySelector('.lbl').textContent = '듣기 멈추기';
+  const items = VERSES.slice(start).flatMap((v, k) => [{ text: `${start + k + 1}번. ${v.ref}`, idx: start + k }, { text: v.t, idx: start + k }]);
+  speak(items, () => stopSpeak());
+}
+$('vd-speak').addEventListener('click', () => { const v = VERSES[vIndex]; speak([{ text: v.ref }, { text: v.t }]); });
+$('v-play-all').addEventListener('click', () => { if (playingAll) stopSpeak(); else playAllFrom(0); });
+
+function renderSpeedChips() {
+  const cur = state.rate || 1;
+  document.querySelectorAll('.speed-chips').forEach((box) => {
+    box.innerHTML = RATES.map((r) => `<button class="chip" data-rate="${r}" aria-pressed="${r === cur}">${r}배</button>`).join('');
+    box.querySelectorAll('.chip').forEach((c) => c.addEventListener('click', () => {
+      state.rate = Number(c.dataset.rate);
+      save();
+      renderSpeedChips();
+      if (playingAll) playAllFrom(playIdx); // 연속 듣기 중이면 지금 구절부터 새 속도로
+    }));
+  });
+}
+renderSpeedChips();
 
 // ───────── 장절 맞히기 ─────────
 let rq = []; let rqPos = 0; let rqRight = 0;
@@ -697,6 +747,36 @@ function renderStats() {
 $('s-reset').addEventListener('click', () => {
   if (!confirm('퀴즈 기록과 암송 표시를 모두 지울까요? 되돌릴 수 없습니다.')) return;
   state.stats = {}; state.wrong = []; state.memo = []; save(); renderStats();
+});
+
+// ───────── 아이콘 (선 아이콘 한 세트) ─────────
+const ICON_PATHS = {
+  book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M8 7h8M8 11h6"/>',
+  help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14"/><path d="M12 17h.01"/>',
+  chart: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  award: '<circle cx="12" cy="9" r="6"/><path d="M8.5 14 7 22l5-3 5 3-1.5-8"/>',
+  list: '<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+  pen: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+  play: '<path d="M6 4l14 8-14 8z"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  flag: '<path d="M4 22V4M4 4h12l-2 4 2 4H4"/>',
+  rotate: '<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>',
+  home: '<path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/>',
+  x: '<path d="M18 6 6 18M6 6l12 12"/>',
+  target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+  volume: '<path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/>',
+  headphones: '<path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1v-6h3zM3 19a2 2 0 0 0 2 2h1v-6H3z"/>',
+  star: '<path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/>',
+  left: '<path d="m15 18-6-6 6-6"/>',
+  right: '<path d="m9 18 6-6-6-6"/>',
+  trash: '<path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/>',
+};
+const svg = (name) => `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${ICON_PATHS[name] || ''}</svg>`;
+document.querySelectorAll('[data-icon]').forEach((el) => {
+  const icon = svg(el.dataset.icon);
+  if (el.tagName === 'H2') el.insertAdjacentHTML('afterbegin', `<span class="h-ico">${icon}</span>`);
+  else el.insertAdjacentHTML('afterbegin', icon);
 });
 
 renderRangeChips();
