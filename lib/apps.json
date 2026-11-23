@@ -308,5 +308,15 @@
     "pinned": false,
     "url": "https://alldown.rinooks.workers.dev/",
     "description": "영상 위에 마우스를 올리면 나타나는 저장 버튼으로 페이스북 피드 등 주소 찾기 어려운 영상도 PC에 저장 — 원본이 없으면 그 영상만 녹화. 크롬 확장(ZIP 설치)·무료·계정 없음. 외부 제작"
+  },
+  {
+    "repo": "romans-quiz",
+    "code": "ROM",
+    "name": "로마서 퀴즈 · 말씀 암송",
+    "category": "신앙 도구",
+    "status": "live",
+    "pinned": true,
+    "url": "https://deeptact-apps.vercel.app/romans-quiz/",
+    "description": "성경 퀴즈 대회 준비용 — 로마서 40문제를 직접 입력해 자동 채점·틀린 문제만 다시, 예수 그리스도에 관한 말씀 15구절을 단계별 가리기·써서 맞춰 보기·듣기로 암송. 기록은 폰에 저장"
   }
 ]

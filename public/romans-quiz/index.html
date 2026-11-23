@@ -1,0 +1,698 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>로마서 퀴즈 · 말씀 암송</title>
+<meta name="description" content="로마서 성경 퀴즈 40문제와 예수 그리스도에 관한 말씀 15구절을 폰으로 풀고 외우는 학습 앱">
+<meta property="og:title" content="로마서 퀴즈 · 말씀 암송">
+<meta property="og:description" content="로마서 퀴즈 40문제 풀기 · 말씀 15구절 암송 · 틀린 문제 다시 풀기">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%233C6D71'/><path d='M30 25h30a10 10 0 0 1 10 10v40H40a10 10 0 0 1-10-10z' fill='none' stroke='white' stroke-width='6'/><path d='M42 42h16M42 54h16' stroke='white' stroke-width='5'/></svg>">
+<link rel="stylesheet" href="https://deeptactlearning-fonts.netlify.app/fonts.css">
+<style>
+  :root {
+    --primary: #2E3142;
+    --accent: #3C6D71;
+    --accent-soft: #E4EEEE;
+    --surface: #F2F1EF;
+    --card: #ffffff;
+    --line: #E3E1DC;
+    --muted: #66707A;
+    --ok: #2F7A4F;
+    --ok-soft: #E3F1E8;
+    --bad: #B23B3B;
+    --bad-soft: #F7E4E4;
+    --r-s: 8px;
+    --r-m: 12px;
+    --r-l: 16px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    font-family: 'Paperlogy', -apple-system, 'Apple SD Gothic Neo', sans-serif;
+    font-weight: 500;
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--primary);
+    background: var(--surface);
+    word-break: keep-all;
+    -webkit-tap-highlight-color: transparent;
+  }
+  button, input, textarea, select { font: inherit; color: inherit; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 16px 16px 96px; }
+  header { padding: 8px 0 12px; }
+  header h1 { font-size: 22px; font-weight: 700; margin: 0; }
+  header p { margin: 4px 0 0; color: var(--muted); font-size: 15px; }
+
+  /* 하단 탭 */
+  nav.tabs {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+    display: flex; background: var(--card); border-top: 1px solid var(--line);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  nav.tabs button {
+    flex: 1; border: 0; background: none; padding: 12px 0 14px; font-size: 16px; color: var(--muted); cursor: pointer;
+  }
+  nav.tabs button[aria-selected="true"] { color: var(--accent); font-weight: 700; box-shadow: inset 0 3px 0 var(--accent); }
+
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-l); padding: 20px; margin-bottom: 16px; }
+  .card h2 { font-size: 18px; font-weight: 700; margin: 0 0 12px; }
+  .muted { color: var(--muted); font-size: 15px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .stack > * + * { margin-top: 12px; }
+
+  .btn {
+    border: 1px solid var(--line); background: var(--card); border-radius: var(--r-m);
+    padding: 12px 16px; font-size: 16px; cursor: pointer; min-height: 48px;
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+  .btn.ghost { border-color: transparent; background: transparent; color: var(--accent); }
+  .btn.block { width: 100%; }
+  .btn[disabled] { opacity: .45; cursor: default; }
+
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip {
+    border: 1px solid var(--line); background: var(--card); border-radius: 999px; padding: 8px 14px; font-size: 15px; cursor: pointer;
+  }
+  .chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 700; }
+
+  .progress { height: 6px; background: var(--line); border-radius: 999px; overflow: hidden; }
+  .progress > i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .25s; }
+
+  /* 퀴즈 카드 */
+  .qnum { font-size: 15px; color: var(--muted); display: flex; justify-content: space-between; }
+  .qtext { font-size: 19px; line-height: 1.75; margin: 8px 0 4px; }
+  .blank {
+    display: inline-block; min-width: 4.5em; border-bottom: 2px solid var(--accent); margin: 0 4px;
+    text-align: center; color: transparent; line-height: 1.3;
+  }
+  .blank.shown { color: var(--accent); font-weight: 700; }
+  .answers { display: grid; gap: 8px; margin-top: 12px; }
+  .answers label { display: flex; align-items: center; gap: 8px; font-size: 15px; color: var(--muted); }
+  .answers input {
+    flex: 1; min-width: 0; border: 1px solid var(--line); border-radius: var(--r-s); padding: 12px; font-size: 17px; background: #fff;
+  }
+  .answers input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+  .answers input.ok { border-color: var(--ok); background: var(--ok-soft); }
+  .answers input.bad { border-color: var(--bad); background: var(--bad-soft); }
+  .verdict { border-radius: var(--r-m); padding: 12px 16px; font-size: 16px; }
+  .verdict.ok { background: var(--ok-soft); color: var(--ok); }
+  .verdict.bad { background: var(--bad-soft); color: var(--bad); }
+  .verdict b { font-weight: 700; }
+
+  /* 훑어보기 목록 */
+  .list-item { border-top: 1px solid var(--line); padding: 14px 0; }
+  .list-item:first-child { border-top: 0; }
+  .list-item .ans { margin-top: 6px; color: var(--accent); font-weight: 700; }
+  .list-item .ans.hidden { color: var(--muted); font-weight: 500; }
+  .tap { cursor: pointer; }
+
+  /* 암송 */
+  .verse-ref { font-weight: 700; font-size: 18px; }
+  .verse-text { font-size: 20px; line-height: 1.9; margin-top: 8px; }
+  .w { display: inline; }
+  .w.hide { color: transparent; background: var(--line); border-radius: 4px; cursor: pointer; }
+  .w.hint { color: var(--muted); }
+  .badge { display: inline-block; font-size: 13px; padding: 2px 8px; border-radius: 999px; background: var(--ok-soft); color: var(--ok); font-weight: 700; }
+  .verse-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 0; border-top: 1px solid var(--line); cursor: pointer; }
+  .verse-row:first-child { border-top: 0; }
+  .verse-row .preview { color: var(--muted); font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60vw; }
+  textarea { width: 100%; min-height: 120px; border: 1px solid var(--line); border-radius: var(--r-s); padding: 12px; font-size: 17px; line-height: 1.6; background: #fff; }
+  textarea:focus { outline: 2px solid var(--accent); border-color: var(--accent); }
+  .diff .m { color: var(--ok); }
+  .diff .x { color: var(--bad); text-decoration: underline; text-underline-offset: 4px; }
+  input[type="range"] { width: 100%; accent-color: var(--accent); }
+  .levels { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); }
+
+  .score { font-size: 40px; font-weight: 700; color: var(--accent); }
+  .empty { text-align: center; padding: 32px 16px; color: var(--muted); }
+  [hidden] { display: none !important; }
+  footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 24px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>로마서 퀴즈 · 말씀 암송</h1>
+    <p>문제를 풀고, 말씀을 외우고, 틀린 것만 다시. 기록은 이 폰에 저장됩니다.</p>
+  </header>
+
+  <!-- 퀴즈 탭 -->
+  <section id="tab-quiz">
+    <div id="quiz-setup" class="card stack">
+      <h2>퀴즈 풀기</h2>
+      <div>
+        <div class="muted">범위</div>
+        <div class="chips" id="range-chips"></div>
+      </div>
+      <div>
+        <div class="muted">순서</div>
+        <div class="chips" id="order-chips">
+          <button class="chip" data-order="seq" aria-pressed="true">차례대로</button>
+          <button class="chip" data-order="shuffle" aria-pressed="false">섞어서</button>
+        </div>
+      </div>
+      <button class="btn primary block" id="quiz-start">시작하기</button>
+      <button class="btn block" id="browse-start">정답 가리고 훑어보기</button>
+    </div>
+
+    <div id="quiz-play" hidden>
+      <div class="card stack">
+        <div class="qnum"><span id="q-pos"></span><span id="q-chapter"></span></div>
+        <div class="progress"><i id="q-bar"></i></div>
+        <div class="qtext" id="q-text"></div>
+        <div class="answers" id="q-answers"></div>
+        <div id="q-verdict" class="verdict" hidden></div>
+        <div class="row" id="q-actions">
+          <button class="btn primary" id="q-check" style="flex:1">확인</button>
+          <button class="btn" id="q-reveal">정답 보기</button>
+        </div>
+        <div class="row" id="q-after" hidden>
+          <button class="btn ghost" id="q-override" hidden>맞은 걸로 할게요</button>
+          <button class="btn primary" id="q-next" style="flex:1">다음 문제</button>
+        </div>
+      </div>
+      <button class="btn ghost block" id="q-quit">그만하고 결과 보기</button>
+    </div>
+
+    <div id="quiz-result" class="card stack" hidden>
+      <h2>결과</h2>
+      <div><span class="score" id="r-score"></span> <span class="muted" id="r-detail"></span></div>
+      <div id="r-wrong"></div>
+      <button class="btn primary block" id="r-retry-wrong">틀린 문제만 다시</button>
+      <button class="btn block" id="r-home">처음으로</button>
+    </div>
+
+    <div id="quiz-browse" class="card" hidden>
+      <div class="row" style="justify-content:space-between;margin-bottom:8px">
+        <h2 style="margin:0">훑어보기</h2>
+        <div class="row">
+          <button class="btn ghost" id="b-toggle">정답 모두 보기</button>
+          <button class="btn" id="b-close">닫기</button>
+        </div>
+      </div>
+      <p class="muted" style="margin:0 0 8px">문제를 누르면 정답이 보입니다.</p>
+      <div id="b-list"></div>
+    </div>
+  </section>
+
+  <!-- 암송 탭 -->
+  <section id="tab-verse" hidden>
+    <div id="verse-list-card" class="card">
+      <div class="row" style="justify-content:space-between;margin-bottom:8px">
+        <h2 style="margin:0">예수 그리스도에 관한 말씀 15구절</h2>
+      </div>
+      <div class="row" style="margin-bottom:8px">
+        <button class="btn" id="v-play-all">전체 연속 듣기</button>
+        <button class="btn" id="v-ref-quiz">장절 맞히기</button>
+      </div>
+      <div id="v-list"></div>
+    </div>
+
+    <div id="verse-detail" hidden>
+      <div class="card stack">
+        <div class="row" style="justify-content:space-between">
+          <span class="verse-ref" id="vd-ref"></span>
+          <span class="muted" id="vd-pos"></span>
+        </div>
+        <div>
+          <input type="range" min="0" max="4" step="1" value="0" id="vd-level" aria-label="가리기 단계">
+          <div class="levels"><span>전체</span><span>1/3</span><span>2/3</span><span>첫 글자</span><span>모두</span></div>
+        </div>
+        <div class="verse-text" id="vd-text"></div>
+        <p class="muted" style="margin:0">가려진 부분을 누르면 잠깐 보입니다.</p>
+        <div class="row">
+          <button class="btn" id="vd-speak">듣기</button>
+          <button class="btn" id="vd-memo">외웠어요</button>
+        </div>
+      </div>
+      <div class="card stack">
+        <h2>직접 써 보기</h2>
+        <textarea id="vd-input" placeholder="장절만 보고 기억나는 대로 써 보세요"></textarea>
+        <div class="row">
+          <button class="btn primary" id="vd-compare" style="flex:1">맞춰 보기</button>
+          <button class="btn" id="vd-clear">지우기</button>
+        </div>
+        <div id="vd-result" hidden></div>
+      </div>
+      <div class="row">
+        <button class="btn" id="vd-prev" style="flex:1">이전 구절</button>
+        <button class="btn" id="vd-list" style="flex:1">목록</button>
+        <button class="btn" id="vd-next" style="flex:1">다음 구절</button>
+      </div>
+    </div>
+
+    <div id="ref-quiz" hidden>
+      <div class="card stack">
+        <div class="qnum"><span id="rq-pos"></span><span id="rq-score"></span></div>
+        <div class="verse-text" id="rq-text" style="font-size:18px"></div>
+        <div class="answers" id="rq-options"></div>
+        <div id="rq-verdict" class="verdict" hidden></div>
+        <button class="btn primary block" id="rq-next" hidden>다음</button>
+      </div>
+      <button class="btn ghost block" id="rq-quit">목록으로</button>
+    </div>
+  </section>
+
+  <!-- 기록 탭 -->
+  <section id="tab-stats" hidden>
+    <div class="card stack">
+      <h2>내 학습 기록</h2>
+      <div id="s-summary"></div>
+      <div id="s-weak"></div>
+      <button class="btn block" id="s-reset">기록 모두 지우기</button>
+    </div>
+  </section>
+
+  <footer>로마서 문제지 40문항 · 예수 그리스도에 관한 성경 말씀 15구절</footer>
+</div>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" data-tab="quiz" aria-selected="true">퀴즈</button>
+  <button role="tab" data-tab="verse" aria-selected="false">암송</button>
+  <button role="tab" data-tab="stats" aria-selected="false">기록</button>
+</nav>
+
+<script>
+// ───────── 데이터 ─────────
+// q 안의 {} 는 빈칸. 빈칸이 없으면 tpl(답 칸 모양) 또는 기본 한 칸을 쓴다.
+// alt: 빈칸별로 함께 인정할 답 / keys: 긴 답은 핵심어가 모두 들어 있으면 정답
+const QUIZ = [
+  { n: 1, ch: 1, q: '로마서는 모두 몇 장인가요?', a: ['16장'], alt: [['16']] },
+  { n: 2, ch: 1, q: '로마서 1장에서 하나님의 아들은 육신으로는 누구의 혈통에서 나셨다고 기록되어 있나요?', a: ['다윗'] },
+  { n: 3, ch: 1, q: '바울은 헬라인이나 야만인이나 지혜 있는 자나 어리석은 자에게 자신이 어떤 자라고 고백하였나요?', a: ['빚진 자'], keys: [['빚진']] },
+  { n: 4, ch: 1, q: '바울은 할 수 있는 대로 로마에 있는 사람들에게 무엇을 전하기 원했나요?', a: ['복음'] },
+  { n: 5, ch: 1, q: '로마서 1장 16절. “이 복음은 모든 믿는 자에게 구원을 주시는 하나님의 {}이 됨이라 먼저는 {}에게요 그리고 {}에게로다.”', a: ['능력', '유대인', '헬라인'] },
+  { n: 6, ch: 1, q: '바울은 오직 의인은 이것으로 말미암아 산다고 하였습니다. 이것은 무엇인가요?', a: ['믿음'] },
+  { n: 7, ch: 1, q: '이방인은 썩어지지 아니하는 하나님의 영광을 썩어질 사람과 새와 짐승과 기어다니는 동물 모양의 이것으로 바꾸었습니다. 이것은 무엇인가요?', a: ['우상'] },
+  { n: 8, ch: 2, q: '율법이 없는 이방인의 행동 판단 기준은 무엇인가요?', a: ['양심'] },
+  { n: 9, ch: 2, q: '하나님 앞에서는 율법을 듣는 자가 의인이 아니요 오직 율법을 {} 자라야 의롭다 하심을 얻습니다.', a: ['행하는'] },
+  { n: 10, ch: 3, q: '로마서 3장에서 바울은 율법으로 무엇을 깨닫게 된다고 했나요?', a: ['죄'] },
+  { n: 11, ch: 3, q: '로마서 3장 4절. “그럴 수 없느니라 사람은 다 {}되고 오직 하나님은 {}되시다.”', a: ['거짓', '참'] },
+  { n: 12, ch: 3, q: '로마서 3장 23절. “{} 사람이 {}를 범하였으매 하나님의 {}에 이르지 못하더니”', a: ['모든', '죄', '영광'] },
+  { n: 13, ch: 5, q: '바울은 우리가 누구로 말미암아 하나님과 화평을 누리게 되었다고 하였나요?', a: ['예수 그리스도'], alt: [['예수님', '그리스도', '예수']] },
+  { n: 14, ch: 5, q: '우리가 환난 중에도 즐거워하나니 이는 환난은 {}를, {}는 연단을, 연단은 {}을 이루는 줄 앎이로다.', a: ['인내', '인내', '소망'] },
+  { n: 15, ch: 5, q: '로마서 5장 8절. “우리가 아직 {} 되었을 때에 그리스도께서 우리를 위하여 {}으로 하나님께서 우리에 대한 자기의 {}을 확증하셨느니라.”', a: ['죄인', '죽으심', '사랑'] },
+  { n: 16, ch: 5, q: '한 사람으로 말미암아 죄가 세상에 들어오고 죄로 말미암아 이것이 들어왔습니다. 이것은 무엇인가요?', a: ['사망'] },
+  { n: 17, ch: 6, q: '죄가 믿는 우리를 주장하지 못하는 이유는 우리가 법 아래 있지 않고 무엇 아래 있기 때문인가요? (6:14)', a: ['은혜'] },
+  { n: 18, ch: 6, q: '로마서 6장 23절. “{}의 삯은 {}이요 하나님의 {}는 그리스도 예수 우리 주 안에 있는 {}이니라.”', a: ['죄', '사망', '은사', '영생'] },
+  { n: 19, ch: 7, q: '로마서 7장 7절에서 말하는 율법의 기능은 무엇인가요?', a: ['나의 죄를 깨닫게 함'], keys: [['죄', '깨닫']] },
+  { n: 20, ch: 8, q: '우리를 죄와 사망의 법에서 해방시키는 것은 무엇입니까? (8:2)', a: ['생명의 성령의 법'], keys: [['생명', '성령', '법']] },
+  { n: 21, ch: 8, q: '예수님을 믿는 우리는 종의 영을 받지 아니하고 양자의 영을 받아서 하나님을 무엇이라 부를 수 있게 되었습니까? (8:15)', a: ['아빠 아버지'] },
+  { n: 22, ch: 8, q: '우리가 어떻게 기도해야 할지 알지 못할 때 누가 도와주신다고 했습니까? (8:26)', a: ['성령님'], alt: [['성령']] },
+  { n: 23, ch: 8, q: '환난이나 곤고나 박해나 기근이나 적신이나 위험이나 칼도 우리를 무엇으로부터 끊을 수 없습니까? (8:35)', a: ['그리스도의 사랑'], keys: [['그리스도', '사랑']] },
+  { n: 24, ch: 10, q: '로마서 10장 15절에 “아름답도다 좋은 소식을 전하는 자들의 발이여 함과 같으니라”는 구약의 어느 성경의 말씀을 인용한 것인가요?', a: ['이사야'], alt: [['이사야서']] },
+  { n: 25, ch: 10, q: '“그러므로 {}은 {}에서 나며 {}은 그리스도의 {}으로 말미암았느니라” (10:17)', a: ['믿음', '들음', '들음', '말씀'] },
+  { n: 26, ch: 11, q: '하나님의 {}와 {}에는 {}하심이 없느니라 (11:29)', a: ['은사', '부르심', '후회'] },
+  { n: 27, ch: 12, q: '형제들아 내가 {}의 모든 {}하심으로 너희를 권하노니 {}을 하나님이 기뻐하시는 {}로 드리라 이는 너희가 드릴 {}니라 (12:1)', a: ['하나님', '자비', '너희 몸', '거룩한 산 제물', '영적 예배'] },
+  { n: 28, ch: 12, q: '너희는 이 {}를 본받지 말고 오직 {}을 새롭게 함으로 {}를 받아 하나님의 {}하시고 {}하시고 {}하신 뜻이 무엇인지 {}하도록 하라 (12:2)', a: ['세대', '마음', '변화', '선', '기뻐', '온전', '분별'] },
+  { n: 29, ch: 12, q: '우리 많은 사람이 그리스도 안에서 서로 무엇이 되어 서로 지체가 되었다고 했나요? (12:5)', a: ['한 몸'] },
+  { n: 30, ch: 12, q: '{}하여 {} 말고 {}을 품고 {}를 섬기라 (12:11)', a: ['부지런', '게으르지', '열심', '주'] },
+  { n: 31, ch: 12, q: '악에게 지지 말고 무엇으로 악을 이기나요? (12:21)', a: ['선'] },
+  { n: 32, ch: 13, q: '밤이 깊고 낮이 가까웠으니 그러므로 우리가 {}의 일을 벗고 {}의 {}을 입자 (13:12)', a: ['어둠', '빛', '갑옷'] },
+  { n: 33, ch: 14, q: '우리가 살아도 주를 위하여 살고 죽어도 주를 위하여 죽나니 그러므로 사나 죽으나 우리가 {}이로다 (14:8)', a: ['주의 것'] },
+  { n: 34, ch: 16, q: '선한 데는 어떠하고, 악한 데는 어떠해야 하나요? (16:19)', tpl: '선한 데는 {} 악한 데는 {}', a: ['지혜롭고', '미련'], alt: [['지혜'], ['미련하고', '미련하기를']] },
+  { n: 35, ch: 16, q: '평강의 하나님께서 누구를 우리의 발아래에 상하게 하시나요? (16:20)', a: ['사탄'] },
+  { n: 36, ch: 16, q: '로마서를 바울 대신 기록한 사람입니다. (롬 16:22)', a: ['더디오'] },
+  { n: 37, ch: 16, q: '로마서 16장에서 바울이 로마 교회 성도들에게 추천하며, 여러 사람과 바울 자신을 도와준 사람이라고 소개한 여인은 누구인가요?', a: ['뵈뵈'] },
+  { n: 38, ch: 16, q: '바울이 아시아에서 그리스도께 처음 맺은 열매라 한 사람입니다. (16:5)', a: ['에베네도'] },
+  { n: 39, ch: 16, q: '바울이 내 어머니와 같은 분이라고 한 사람입니다. (16:13)', a: ['루포의 어머니'], keys: [['루포', '어머니']] },
+  { n: 40, ch: 16, q: '우리 부부는 사도 바울을 목숨을 걸고 도와준 동역자입니다. (16:4)', a: ['브리스가와 아굴라'], keys: [['브리스가', '아굴라']] },
+];
+
+const VERSES = [
+  { ref: '마태복음 1장 23절', t: '보라 처녀가 잉태하여 아들을 낳을 것이요 그의 이름은 임마누엘이라 하리라 하셨으니 이를 번역한즉 하나님이 우리와 함께 계시다 함이라' },
+  { ref: '마태복음 1장 21절', t: '아들을 낳으리니 이름을 예수라 하라 이는 그가 자기 백성을 그들의 죄에서 구원할 자이심이라 하니라' },
+  { ref: '요한복음 1장 29절', t: '이튿날 요한이 예수께서 자기에게 나아오심을 보고 이르되 보라 세상 죄를 지고 가는 하나님의 어린 양이로다' },
+  { ref: '요한일서 2장 2절', t: '그는 우리 죄를 위한 화목제물이니 우리만 위할 뿐 아니요 온 세상의 죄를 위하심이라' },
+  { ref: '마태복음 16장 16절', t: '시몬 베드로가 대답하여 이르되 주는 그리스도시요 살아 계신 하나님의 아들이시니이다' },
+  { ref: '요한복음 6장 35절', t: '예수께서 이르시되 나는 생명의 떡이니 내게 오는 자는 결코 주리지 아니할 터이요 나를 믿는 자는 영원히 목마르지 아니하리라' },
+  { ref: '요한복음 11장 25절', t: '예수께서 이르시되 나는 부활이요 생명이니 나를 믿는 자는 죽어도 살겠고' },
+  { ref: '요한복음 14장 6절', t: '예수께서 이르시되 내가 곧 길이요 진리요 생명이니 나로 말미암지 않고는 아버지께로 올 자가 없느니라' },
+  { ref: '누가복음 19장 10절', t: '인자가 온 것은 잃어버린 자를 찾아 구원하려 함이니라' },
+  { ref: '이사야 53장 5절', t: '그가 찔림은 우리의 허물 때문이요 그가 상함은 우리의 죄악 때문이라 그가 징계를 받으므로 우리는 평화를 누리고 그가 채찍에 맞으므로 우리는 나음을 받았도다' },
+  { ref: '빌립보서 2장 8절', t: '사람의 모양으로 나타나사 자기를 낮추시고 죽기까지 복종하셨으니 곧 십자가에 죽으심이라' },
+  { ref: '고린도전서 15장 4절', t: '장사 지낸 바 되셨다가 성경대로 사흘 만에 다시 살아나사' },
+  { ref: '고린도전서 15장 20절', t: '그러나 이제 그리스도께서 죽은 자 가운데서 다시 살아나사 잠자는 자들의 첫 열매가 되셨도다' },
+  { ref: '골로새서 1장 18절', t: '그는 몸인 교회의 머리시라 그가 근본이시요 죽은 자들 가운데서 먼저 나신 이시니 이는 친히 만물의 으뜸이 되려 하심이요' },
+  { ref: '로마서 4장 25절', t: '예수는 우리가 범죄한 것 때문에 내줌이 되고 또한 우리를 의롭다 하시기 위하여 살아나셨느니라' },
+];
+
+const RANGES = [
+  { id: 'all', label: '전체 40', test: () => true },
+  { id: 'c1', label: '1–4장', test: (q) => q.ch <= 4 },
+  { id: 'c2', label: '5–8장', test: (q) => q.ch >= 5 && q.ch <= 8 },
+  { id: 'c3', label: '9–12장', test: (q) => q.ch >= 9 && q.ch <= 12 },
+  { id: 'c4', label: '13–16장', test: (q) => q.ch >= 13 },
+  { id: 'wrong', label: '틀린 문제', test: (q) => state.wrong.includes(q.n) },
+];
+
+// ───────── 저장 ─────────
+const KEY = 'romans-quiz-v1';
+const state = Object.assign({ stats: {}, wrong: [], memo: [] }, safeLoad());
+function safeLoad() {
+  try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; }
+}
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { /* 사파리 사생활 보호 모드 등 — 기록만 안 남는다 */ }
+}
+
+// ───────── 도구 ─────────
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const norm = (s) => String(s).toLowerCase().replace(/[\s.,·()“”"'‘’!?~\-]/g, '').replace(/(님|입니다|이요|요)$/, '');
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+function blankCount(item) { return (item.tpl || item.q).split('{}').length - 1 || 1; }
+
+// 빈칸 하나 채점 — 정답·별도 인정 답·핵심어 순으로 본다
+function gradeOne(item, i, input) {
+  const u = norm(input);
+  if (!u) return false;
+  if (u === norm(item.a[i])) return true;
+  if ((item.alt?.[i] || []).some((x) => norm(x) === u)) return true;
+  const keys = item.keys?.[i];
+  return Boolean(keys && keys.every((k) => u.includes(norm(k))));
+}
+
+// ───────── 탭 ─────────
+document.querySelectorAll('nav.tabs button').forEach((b) => b.addEventListener('click', () => showTab(b.dataset.tab)));
+function showTab(name) {
+  document.querySelectorAll('nav.tabs button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === name)));
+  ['quiz', 'verse', 'stats'].forEach((t) => { $('tab-' + t).hidden = t !== name; });
+  if (name === 'stats') renderStats();
+  if (name === 'verse') renderVerseList();
+  window.scrollTo(0, 0);
+}
+
+// ───────── 퀴즈 설정 ─────────
+let range = 'all';
+let order = 'seq';
+function renderRangeChips() {
+  // 틀린 문제를 다 풀어 범위가 비면 전체로 돌린다
+  if (!QUIZ.some(RANGES.find((r) => r.id === range).test)) range = 'all';
+  $('range-chips').innerHTML = RANGES.map((r) => {
+    const count = QUIZ.filter(r.test).length;
+    return `<button class="chip" data-range="${r.id}" aria-pressed="${r.id === range}" ${count ? '' : 'disabled'}>${r.label}${r.id === 'wrong' ? ` ${count}` : ''}</button>`;
+  }).join('');
+  $('range-chips').querySelectorAll('.chip').forEach((c) => c.addEventListener('click', () => { if (c.disabled) return; range = c.dataset.range; renderRangeChips(); }));
+}
+$('order-chips').querySelectorAll('.chip').forEach((c) => c.addEventListener('click', () => {
+  order = c.dataset.order;
+  $('order-chips').querySelectorAll('.chip').forEach((x) => x.setAttribute('aria-pressed', String(x === c)));
+}));
+
+// ───────── 퀴즈 진행 ─────────
+let deck = [];
+let pos = 0;
+let results = [];
+let answered = false;
+
+function startQuiz(list) {
+  deck = order === 'shuffle' ? shuffle(list) : list.slice();
+  if (!deck.length) return;
+  pos = 0; results = [];
+  $('quiz-setup').hidden = true; $('quiz-result').hidden = true; $('quiz-browse').hidden = true; $('quiz-play').hidden = false;
+  renderQuestion();
+}
+$('quiz-start').addEventListener('click', () => startQuiz(QUIZ.filter(RANGES.find((r) => r.id === range).test)));
+
+function renderQuestion() {
+  const item = deck[pos];
+  answered = false;
+  $('q-pos').textContent = `${pos + 1} / ${deck.length}`;
+  $('q-chapter').textContent = `${item.n}번 · ${item.ch}장`;
+  $('q-bar').style.width = `${(pos / deck.length) * 100}%`;
+  const inlineBlanks = item.q.includes('{}');
+  let k = 0;
+  $('q-text').innerHTML = esc(item.q).replace(/\{\}/g, () => `<span class="blank" data-b="${k++}">${esc(item.a[k - 1])}</span>`);
+  const n = blankCount(item);
+  const labels = item.tpl ? item.tpl.split('{}').map((s) => s.trim()) : null;
+  $('q-answers').innerHTML = Array.from({ length: n }, (_, i) => {
+    const label = labels ? labels[i] : (inlineBlanks && n > 1 ? `빈칸 ${i + 1}` : (inlineBlanks ? '빈칸' : '정답'));
+    return `<label>${esc(label)}<input data-i="${i}" autocomplete="off" autocapitalize="off" enterkeyhint="${i === n - 1 ? 'done' : 'next'}"></label>`;
+  }).join('');
+  $('q-verdict').hidden = true;
+  $('q-actions').hidden = false; $('q-after').hidden = true; $('q-override').hidden = true;
+  const inputs = [...$('q-answers').querySelectorAll('input')];
+  inputs.forEach((el, i) => el.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    if (i < inputs.length - 1) inputs[i + 1].focus(); else checkAnswer();
+  }));
+}
+
+function finishAnswer(correct, revealedOnly) {
+  const item = deck[pos];
+  answered = true;
+  results[pos] = { n: item.n, correct };
+  const s = state.stats[item.n] || { right: 0, wrong: 0 };
+  correct ? s.right++ : s.wrong++;
+  state.stats[item.n] = s;
+  state.wrong = state.wrong.filter((x) => x !== item.n);
+  if (!correct) state.wrong.push(item.n);
+  save();
+  document.querySelectorAll('#q-text .blank').forEach((b) => b.classList.add('shown'));
+  const v = $('q-verdict');
+  v.hidden = false;
+  v.className = 'verdict ' + (correct ? 'ok' : 'bad');
+  v.innerHTML = (correct ? '<b>정답입니다.</b>' : (revealedOnly ? '<b>정답을 확인하세요.</b>' : '<b>아쉬워요.</b>')) + ` 정답: ${esc(item.a.join(', '))}`;
+  $('q-actions').hidden = true; $('q-after').hidden = false;
+  $('q-override').hidden = correct || revealedOnly;
+  $('q-next').textContent = pos === deck.length - 1 ? '결과 보기' : '다음 문제';
+  $('q-next').focus({ preventScroll: true });
+}
+
+function checkAnswer() {
+  if (answered) return;
+  const item = deck[pos];
+  const inputs = [...$('q-answers').querySelectorAll('input')];
+  if (inputs.every((el) => !el.value.trim())) { inputs[0].focus(); return; }
+  let all = true;
+  inputs.forEach((el, i) => { const ok = gradeOne(item, i, el.value); el.classList.add(ok ? 'ok' : 'bad'); if (!ok) all = false; });
+  finishAnswer(all, false);
+}
+$('q-check').addEventListener('click', checkAnswer);
+$('q-reveal').addEventListener('click', () => { if (!answered) finishAnswer(false, true); });
+$('q-override').addEventListener('click', () => {
+  const item = deck[pos];
+  const s = state.stats[item.n]; s.wrong--; s.right++;
+  state.wrong = state.wrong.filter((x) => x !== item.n);
+  results[pos].correct = true;
+  save();
+  $('q-verdict').className = 'verdict ok';
+  $('q-verdict').innerHTML = `<b>맞은 것으로 기록했어요.</b> 정답: ${esc(item.a.join(', '))}`;
+  $('q-override').hidden = true;
+});
+$('q-next').addEventListener('click', () => { if (pos < deck.length - 1) { pos++; renderQuestion(); } else showResult(); });
+$('q-quit').addEventListener('click', showResult);
+
+function showResult() {
+  const done = results.filter(Boolean);
+  const right = done.filter((r) => r.correct).length;
+  $('quiz-play').hidden = true; $('quiz-result').hidden = false;
+  $('r-score').textContent = done.length ? `${Math.round((right / done.length) * 100)}점` : '-';
+  $('r-detail').textContent = `${done.length}문제 중 ${right}개 정답`;
+  const wrongItems = done.filter((r) => !r.correct).map((r) => QUIZ.find((q) => q.n === r.n));
+  $('r-wrong').innerHTML = wrongItems.length
+    ? '<div class="muted">틀린 문제</div>' + wrongItems.map((q) => `<div class="list-item"><div>${q.n}. ${esc(q.q.replace(/\{\}/g, '(   )'))}</div><div class="ans">${esc(q.a.join(', '))}</div></div>`).join('')
+    : '<div class="muted">틀린 문제가 없습니다.</div>';
+  $('r-retry-wrong').hidden = !wrongItems.length;
+  $('r-retry-wrong').onclick = () => startQuiz(wrongItems);
+}
+$('r-home').addEventListener('click', goQuizHome);
+function goQuizHome() {
+  $('quiz-play').hidden = true; $('quiz-result').hidden = true; $('quiz-browse').hidden = true; $('quiz-setup').hidden = false;
+  renderRangeChips();
+}
+
+// ───────── 훑어보기 ─────────
+let browseAll = false;
+$('browse-start').addEventListener('click', () => {
+  $('quiz-setup').hidden = true; $('quiz-browse').hidden = false; browseAll = false; renderBrowse();
+});
+$('b-close').addEventListener('click', goQuizHome);
+$('b-toggle').addEventListener('click', () => { browseAll = !browseAll; renderBrowse(); });
+function renderBrowse() {
+  const list = QUIZ.filter(RANGES.find((r) => r.id === range).test);
+  $('b-toggle').textContent = browseAll ? '정답 모두 가리기' : '정답 모두 보기';
+  $('b-list').innerHTML = list.map((q) => `
+    <div class="list-item tap" data-n="${q.n}">
+      <div>${q.n}. ${esc(q.q.replace(/\{\}/g, '(   )'))}</div>
+      <div class="ans ${browseAll ? '' : 'hidden'}">${browseAll ? esc(q.a.join(', ')) : '눌러서 정답 보기'}</div>
+    </div>`).join('');
+  $('b-list').querySelectorAll('.list-item').forEach((el) => el.addEventListener('click', () => {
+    const q = QUIZ.find((x) => x.n === Number(el.dataset.n));
+    const a = el.querySelector('.ans');
+    const hidden = a.classList.toggle('hidden');
+    a.textContent = hidden ? '눌러서 정답 보기' : q.a.join(', ');
+  }));
+}
+
+// ───────── 암송 ─────────
+let vIndex = 0;
+function renderVerseList() {
+  $('verse-list-card').hidden = false; $('verse-detail').hidden = true; $('ref-quiz').hidden = true;
+  $('v-list').innerHTML = VERSES.map((v, i) => `
+    <div class="verse-row" data-i="${i}">
+      <div style="min-width:0">
+        <div><b>${i + 1}. ${esc(v.ref)}</b></div>
+        <div class="preview">${esc(v.t)}</div>
+      </div>
+      ${state.memo.includes(i) ? '<span class="badge">외움</span>' : ''}
+    </div>`).join('');
+  $('v-list').querySelectorAll('.verse-row').forEach((el) => el.addEventListener('click', () => openVerse(Number(el.dataset.i))));
+}
+
+function openVerse(i) {
+  vIndex = i;
+  $('verse-list-card').hidden = true; $('verse-detail').hidden = false; $('ref-quiz').hidden = true;
+  $('vd-ref').textContent = VERSES[i].ref;
+  $('vd-pos').textContent = `${i + 1} / ${VERSES.length}`;
+  $('vd-input').value = '';
+  $('vd-result').hidden = true;
+  renderVerseText();
+  renderMemoBtn();
+  window.scrollTo(0, 0);
+}
+
+// 가리기 단계: 0 전체 · 1 세 어절마다 하나 · 2 세 어절 중 둘 · 3 첫 글자만 · 4 모두
+function renderVerseText() {
+  const level = Number($('vd-level').value);
+  const words = VERSES[vIndex].t.split(' ');
+  $('vd-text').innerHTML = words.map((w, i) => {
+    let hide = false;
+    if (level === 1) hide = i % 3 === 1;
+    if (level === 2) hide = i % 3 !== 0;
+    if (level === 4) hide = true;
+    if (level === 3) return `<span class="w hint" data-w="${esc(w)}">${esc(w[0])}${'○'.repeat(Math.max(0, w.length - 1))}</span>`;
+    return hide ? `<span class="w hide" data-w="${esc(w)}">${esc(w)}</span>` : `<span class="w">${esc(w)}</span>`;
+  }).join(' ');
+  $('vd-text').querySelectorAll('.w.hide, .w.hint').forEach((el) => el.addEventListener('click', () => peek(el)));
+}
+function peek(el) {
+  const before = el.className;
+  const html = el.innerHTML;
+  el.className = 'w';
+  el.textContent = el.dataset.w;
+  setTimeout(() => { el.className = before; el.innerHTML = html; }, 1500);
+}
+$('vd-level').addEventListener('input', renderVerseText);
+
+function renderMemoBtn() {
+  const on = state.memo.includes(vIndex);
+  $('vd-memo').textContent = on ? '외움 표시 취소' : '외웠어요';
+  $('vd-memo').classList.toggle('primary', !on);
+}
+$('vd-memo').addEventListener('click', () => {
+  state.memo = state.memo.includes(vIndex) ? state.memo.filter((x) => x !== vIndex) : [...state.memo, vIndex];
+  save(); renderMemoBtn();
+});
+$('vd-prev').addEventListener('click', () => openVerse((vIndex - 1 + VERSES.length) % VERSES.length));
+$('vd-next').addEventListener('click', () => openVerse((vIndex + 1) % VERSES.length));
+$('vd-list').addEventListener('click', () => { stopSpeak(); renderVerseList(); });
+$('vd-clear').addEventListener('click', () => { $('vd-input').value = ''; $('vd-result').hidden = true; $('vd-input').focus(); });
+
+// 써 본 글 맞춰 보기 — 원문 어절을 차례대로 찾아 맞은 어절·빠진 어절을 표시한다
+$('vd-compare').addEventListener('click', () => {
+  const orig = VERSES[vIndex].t.split(' ');
+  const mine = $('vd-input').value.split(/\s+/).map(norm).filter(Boolean);
+  if (!mine.length) { $('vd-input').focus(); return; }
+  let p = 0; let hit = 0;
+  const marks = orig.map((w) => {
+    const target = norm(w);
+    const found = mine.indexOf(target, p);
+    if (found !== -1 && found - p <= 3) { p = found + 1; hit++; return `<span class="m">${esc(w)}</span>`; }
+    return `<span class="x">${esc(w)}</span>`;
+  });
+  const pct = Math.round((hit / orig.length) * 100);
+  const r = $('vd-result');
+  r.hidden = false;
+  r.innerHTML = `<div class="verdict ${pct === 100 ? 'ok' : 'bad'}"><b>${pct}%</b> · ${orig.length}어절 중 ${hit}어절 맞음${pct === 100 ? ' — 완벽합니다' : ''}</div>
+    <div class="diff verse-text" style="font-size:18px">${marks.join(' ')}</div>
+    <div class="muted">밑줄 친 어절이 빠졌거나 다른 부분입니다.</div>`;
+});
+
+// ───────── 듣기 ─────────
+const canSpeak = 'speechSynthesis' in window;
+function speak(texts, onEnd) {
+  if (!canSpeak) { alert('이 브라우저는 읽어 주기를 지원하지 않습니다.'); return; }
+  speechSynthesis.cancel();
+  const voice = speechSynthesis.getVoices().find((v) => v.lang && v.lang.startsWith('ko'));
+  texts.forEach((t, i) => {
+    const u = new SpeechSynthesisUtterance(t);
+    u.lang = 'ko-KR'; u.rate = 0.9;
+    if (voice) u.voice = voice;
+    if (i === texts.length - 1 && onEnd) u.onend = onEnd;
+    speechSynthesis.speak(u);
+  });
+}
+function stopSpeak() { if (canSpeak) speechSynthesis.cancel(); playingAll = false; $('v-play-all').textContent = '전체 연속 듣기'; }
+$('vd-speak').addEventListener('click', () => { const v = VERSES[vIndex]; speak([v.ref, v.t]); });
+let playingAll = false;
+$('v-play-all').addEventListener('click', () => {
+  if (playingAll) { stopSpeak(); return; }
+  playingAll = true;
+  $('v-play-all').textContent = '듣기 멈추기';
+  speak(VERSES.flatMap((v, i) => [`${i + 1}번. ${v.ref}`, v.t]), () => stopSpeak());
+});
+if (canSpeak) speechSynthesis.onvoiceschanged = () => {};
+
+// ───────── 장절 맞히기 ─────────
+let rq = []; let rqPos = 0; let rqRight = 0;
+$('v-ref-quiz').addEventListener('click', () => {
+  stopSpeak();
+  rq = shuffle(VERSES.map((_, i) => i)); rqPos = 0; rqRight = 0;
+  $('verse-list-card').hidden = true; $('ref-quiz').hidden = false;
+  renderRefQuiz();
+});
+function renderRefQuiz() {
+  const i = rq[rqPos];
+  $('rq-pos').textContent = `${rqPos + 1} / ${rq.length}`;
+  $('rq-score').textContent = `맞힌 수 ${rqRight}`;
+  $('rq-text').textContent = VERSES[i].t;
+  const options = shuffle([i, ...shuffle(VERSES.map((_, k) => k).filter((k) => k !== i)).slice(0, 3)]);
+  $('rq-options').innerHTML = options.map((k) => `<button class="btn" data-k="${k}">${esc(VERSES[k].ref)}</button>`).join('');
+  $('rq-verdict').hidden = true; $('rq-next').hidden = true;
+  $('rq-options').querySelectorAll('button').forEach((b) => b.addEventListener('click', () => {
+    const ok = Number(b.dataset.k) === i;
+    if (ok) rqRight++;
+    $('rq-options').querySelectorAll('button').forEach((x) => { x.disabled = true; if (Number(x.dataset.k) === i) x.classList.add('primary'); });
+    const v = $('rq-verdict');
+    v.hidden = false; v.className = 'verdict ' + (ok ? 'ok' : 'bad');
+    v.innerHTML = ok ? '<b>정답입니다.</b>' : `<b>아쉬워요.</b> 정답: ${esc(VERSES[i].ref)}`;
+    $('rq-score').textContent = `맞힌 수 ${rqRight}`;
+    $('rq-next').hidden = false;
+    $('rq-next').textContent = rqPos === rq.length - 1 ? `끝 — ${rq.length}개 중 ${rqRight}개` : '다음';
+  }));
+}
+$('rq-next').addEventListener('click', () => { if (rqPos < rq.length - 1) { rqPos++; renderRefQuiz(); } else renderVerseList(); });
+$('rq-quit').addEventListener('click', renderVerseList);
+
+// ───────── 기록 ─────────
+function renderStats() {
+  const tried = Object.keys(state.stats).length;
+  const totalRight = Object.values(state.stats).reduce((a, s) => a + s.right, 0);
+  const totalWrong = Object.values(state.stats).reduce((a, s) => a + s.wrong, 0);
+  $('s-summary').innerHTML = `
+    <div>퀴즈: 40문제 중 <b>${tried}</b>문제 풀어 봄 · 누적 정답 ${totalRight} / 오답 ${totalWrong}</div>
+    <div>지금 틀린 문제: <b>${state.wrong.length}</b>개</div>
+    <div>암송: 15구절 중 <b>${state.memo.length}</b>구절 외움</div>`;
+  const weak = Object.entries(state.stats).filter(([, s]) => s.wrong > 0).sort((a, b) => b[1].wrong - a[1].wrong).slice(0, 5);
+  $('s-weak').innerHTML = weak.length
+    ? '<div class="muted">자주 틀린 문제</div>' + weak.map(([n, s]) => { const q = QUIZ.find((x) => x.n === Number(n)); return `<div class="list-item"><div>${q.n}. ${esc(q.q.replace(/\{\}/g, '(   )'))}</div><div class="ans">${esc(q.a.join(', '))} · ${s.wrong}번 틀림</div></div>`; }).join('')
+    : '<div class="empty">아직 틀린 기록이 없습니다.<br>퀴즈 탭에서 시작해 보세요.</div>';
+}
+$('s-reset').addEventListener('click', () => {
+  if (!confirm('퀴즈 기록과 암송 표시를 모두 지울까요? 되돌릴 수 없습니다.')) return;
+  state.stats = {}; state.wrong = []; state.memo = []; save(); renderStats();
+});
+
+renderRangeChips();
+</script>
+</body>
+</html>
