@@ -240,7 +240,9 @@
         <h2 style="margin:0" data-icon="book">예수 그리스도에 관한 말씀 15구절</h2>
       </div>
       <div class="row" style="margin-bottom:8px">
-        <button class="btn" id="v-play-all" data-icon="headphones"><span class="lbl">전체 연속 듣기</span></button>
+        <button class="btn" id="v-play-all" data-icon="headphones"><span class="lbl">전체 한 번 듣기</span></button>
+        <button class="btn" id="v-play-5" data-icon="clock">5분 반복</button>
+        <button class="btn" id="v-play-10" data-icon="clock">10분 반복</button>
         <button class="btn" id="v-ref-quiz" data-icon="target">장절 맞히기</button>
       </div>
       <div class="speed" style="margin-bottom:8px"><span class="muted">듣기 속도</span><div class="chips speed-chips"></div></div>
@@ -655,8 +657,10 @@ const canSpeak = 'speechSynthesis' in window;
 const RATES = [1, 1.25, 1.5, 1.75, 2];
 let playingAll = false;
 let playIdx = 0;
+let endAt = null;   // 5분·10분 반복 듣기의 끝 시각(없으면 한 번만)
+let tick = null;
 
-// items: [{ text, idx }] — idx는 연속 듣기 중 지금 몇 번 구절인지 기억해 속도를 바꿔도 그 자리에서 다시 읽기 위함
+// items: [{ text, idx, head }] — idx는 지금 몇 번 구절인지(속도를 바꿔도 그 자리에서 이어 읽기), head는 구절의 첫 줄(장절)
 function speak(items, onEnd) {
   if (!canSpeak) { alert('이 브라우저는 읽어 주기를 지원하지 않습니다.'); return; }
   speechSynthesis.cancel();
@@ -666,24 +670,49 @@ function speak(items, onEnd) {
     u.lang = 'ko-KR';
     u.rate = state.rate || 1;
     if (voice) u.voice = voice;
-    u.onstart = () => { if (item.idx !== undefined) playIdx = item.idx; };
+    u.onstart = () => {
+      if (item.idx !== undefined) playIdx = item.idx;
+      // 정해 둔 시간이 지났으면 새 구절을 시작하지 않고 멈춘다(읽던 구절은 끝까지 읽은 뒤)
+      if (item.head && endAt && Date.now() >= endAt) stopSpeak();
+    };
     if (i === items.length - 1 && onEnd) u.onend = onEnd;
     speechSynthesis.speak(u);
   });
 }
+function setPlayLabel() {
+  const lbl = $('v-play-all').querySelector('.lbl');
+  if (!playingAll) { lbl.textContent = '전체 한 번 듣기'; return; }
+  if (!endAt) { lbl.textContent = '듣기 멈추기'; return; }
+  const left = Math.max(0, Math.ceil((endAt - Date.now()) / 1000));
+  lbl.textContent = `멈추기 · ${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')} 남음`;
+}
 function stopSpeak() {
   if (canSpeak) speechSynthesis.cancel();
   playingAll = false;
-  $('v-play-all').querySelector('.lbl').textContent = '전체 연속 듣기';
+  endAt = null;
+  clearInterval(tick); tick = null;
+  setPlayLabel();
 }
 function playAllFrom(start) {
   playingAll = true;
-  $('v-play-all').querySelector('.lbl').textContent = '듣기 멈추기';
-  const items = VERSES.slice(start).flatMap((v, k) => [{ text: `${start + k + 1}번. ${v.ref}`, idx: start + k }, { text: v.t, idx: start + k }]);
-  speak(items, () => stopSpeak());
+  setPlayLabel();
+  const items = VERSES.slice(start).flatMap((v, k) => [
+    { text: `${start + k + 1}번. ${v.ref}`, idx: start + k, head: true },
+    { text: v.t, idx: start + k },
+  ]);
+  // 15구절을 다 읽었을 때 시간이 남았으면 처음부터 다시
+  speak(items, () => { if (endAt && Date.now() < endAt) playAllFrom(0); else stopSpeak(); });
+}
+function playFor(minutes) {
+  stopSpeak();
+  endAt = Date.now() + minutes * 60 * 1000;
+  tick = setInterval(setPlayLabel, 1000);
+  playAllFrom(0);
 }
 $('vd-speak').addEventListener('click', () => { const v = VERSES[vIndex]; speak([{ text: v.ref }, { text: v.t }]); });
 $('v-play-all').addEventListener('click', () => { if (playingAll) stopSpeak(); else playAllFrom(0); });
+$('v-play-5').addEventListener('click', () => playFor(5));
+$('v-play-10').addEventListener('click', () => playFor(10));
 
 function renderSpeedChips() {
   const cur = state.rate || 1;
@@ -770,6 +799,7 @@ const ICON_PATHS = {
   star: '<path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/>',
   left: '<path d="m15 18-6-6 6-6"/>',
   right: '<path d="m9 18 6-6-6-6"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
   trash: '<path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/>',
 };
 const svg = (name) => `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${ICON_PATHS[name] || ''}</svg>`;
