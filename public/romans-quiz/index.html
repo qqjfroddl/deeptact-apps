@@ -661,42 +661,112 @@ let playingAll = false;
 let playIdx = 0;
 let endAt = null;   // 5분·10분 반복 듣기의 끝 시각(없으면 한 번만)
 let tick = null;
+let playToken = 0;  // 새로 듣기를 시작하거나 멈추면 올라간다 — 이전 재생의 늦게 온 신호를 무시하기 위함
+let liveUtter = null; // 지금 읽는 문장. 참조를 잡아 두지 않으면 일부 브라우저가 문장을 지워 「끝」 신호가 안 온다
+let watchdog = null;
+let wakeLock = null;
 
-// items: [{ text, idx, head }] — idx는 지금 몇 번 구절인지(속도를 바꿔도 그 자리에서 이어 읽기), head는 구절의 첫 줄(장절)
+// 한 문장씩 차례로 읽는다.
+// 안드로이드 음성 엔진은 문장 30개를 한꺼번에 줄 세우면 중간에 「끝」 신호를 빠뜨리고 멈춘다(2026-11-24 5번 구절에서 멈춤).
+// 그래서 한 문장을 다 읽은 뒤 다음을 넘기고, 신호가 안 오면 감시 장치가 넘긴다.
+// items: [{ text, idx, head }] — idx는 몇 번 구절인지, head는 구절의 첫 줄(장절)
 function speak(items, onEnd) {
   if (!canSpeak) { alert('이 브라우저는 읽어 주기를 지원하지 않습니다.'); return; }
+  const token = ++playToken;
+  clearInterval(watchdog);
   speechSynthesis.cancel();
   const voice = speechSynthesis.getVoices().find((v) => v.lang && v.lang.startsWith('ko'));
-  items.forEach((item, i) => {
-    const u = new SpeechSynthesisUtterance(item.text);
-    u.lang = 'ko-KR';
-    u.rate = state.rate || 1;
-    if (voice) u.voice = voice;
-    u.onstart = () => {
-      if (item.idx !== undefined) playIdx = item.idx;
-      // 정해 둔 시간이 지났으면 새 구절을 시작하지 않고 멈춘다(읽던 구절은 끝까지 읽은 뒤)
-      if (item.head && endAt && Date.now() >= endAt) stopSpeak();
+  let i = 0;
+
+  const next = () => {
+    clearInterval(watchdog);
+    if (token !== playToken) return;
+    if (i >= items.length) { liveUtter = null; if (onEnd) onEnd(); return; }
+    const item = items[i];
+    if (item.idx !== undefined) playIdx = item.idx;
+    // 정해 둔 시간이 지났으면 새 구절을 시작하지 않고 멈춘다(읽던 구절은 끝까지 읽은 뒤)
+    if (item.head && endAt && Date.now() >= endAt) { stopSpeak(); return; }
+
+    let done = false;
+    let started = false;
+    let retried = false;
+    let t0 = Date.now();
+    const rate = state.rate || 1;
+    // 이 시간 안에 못 끝내면 멈춘 것으로 본다 — 한국어 낭독 속도보다 넉넉하게 잡는다
+    const limit = (item.text.length * 350) / rate + 6000;
+
+    const finish = () => {
+      if (done || token !== playToken) return;
+      done = true;
+      clearInterval(watchdog);
+      i++;
+      setTimeout(next, 300);
     };
-    if (i === items.length - 1 && onEnd) u.onend = onEnd;
-    speechSynthesis.speak(u);
-  });
+    const say = () => {
+      const u = new SpeechSynthesisUtterance(item.text);
+      u.lang = 'ko-KR';
+      u.rate = rate;
+      if (voice) u.voice = voice;
+      u.onstart = () => { if (liveUtter === u) started = true; };
+      u.onend = () => { if (liveUtter === u) finish(); };
+      u.onerror = () => { if (liveUtter === u) finish(); };
+      liveUtter = u;
+      speechSynthesis.speak(u);
+    };
+    say();
+
+    watchdog = setInterval(() => {
+      if (done || token !== playToken) { clearInterval(watchdog); return; }
+      if (document.hidden) { t0 = Date.now(); return; } // 화면이 꺼진 동안은 건너뛰지 않고 기다린다
+      const elapsed = Date.now() - t0;
+      const idle = !speechSynthesis.speaking && !speechSynthesis.pending;
+      if (idle && elapsed > 1500) {
+        if (!started && !retried) { retried = true; t0 = Date.now(); liveUtter = null; speechSynthesis.cancel(); say(); return; } // 시작도 안 됐으면 한 번 다시
+        finish(); // 읽기는 끝났는데 「끝」 신호만 빠진 경우
+        return;
+      }
+      if (elapsed > limit) { finish(); liveUtter = null; speechSynthesis.cancel(); } // 엔진이 멈춰 버린 경우
+    }, 1000);
+  };
+  next();
 }
+
+// 듣는 동안 화면이 꺼지면 소리가 멈추므로 화면을 켜 둔다(지원하는 브라우저만)
+async function keepAwake(on) {
+  try {
+    if (on && !wakeLock && 'wakeLock' in navigator) {
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', () => { wakeLock = null; });
+    } else if (!on && wakeLock) {
+      await wakeLock.release();
+      wakeLock = null;
+    }
+  } catch { /* 지원하지 않거나 거부되면 그냥 진행 */ }
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden && playingAll) keepAwake(true); });
+
 function setPlayLabel() {
   const lbl = $('v-play-all').querySelector('.lbl');
   if (!playingAll) { lbl.textContent = '전체 한 번 듣기'; return; }
-  if (!endAt) { lbl.textContent = '듣기 멈추기'; return; }
+  if (!endAt) { lbl.textContent = `듣기 멈추기 · ${playIdx + 1}번`; return; }
   const left = Math.max(0, Math.ceil((endAt - Date.now()) / 1000));
   lbl.textContent = `멈추기 · ${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')} 남음`;
 }
 function stopSpeak() {
+  playToken++;
+  clearInterval(watchdog);
+  liveUtter = null;
   if (canSpeak) speechSynthesis.cancel();
   playingAll = false;
   endAt = null;
   clearInterval(tick); tick = null;
+  keepAwake(false);
   setPlayLabel();
 }
 function playAllFrom(start) {
   playingAll = true;
+  keepAwake(true);
+  if (!tick) tick = setInterval(setPlayLabel, 1000);
   setPlayLabel();
   const items = VERSES.slice(start).flatMap((v, k) => [
     { text: `${start + k + 1}번. ${v.ref}`, idx: start + k, head: true },
@@ -708,7 +778,6 @@ function playAllFrom(start) {
 function playFor(minutes) {
   stopSpeak();
   endAt = Date.now() + minutes * 60 * 1000;
-  tick = setInterval(setPlayLabel, 1000);
   playAllFrom(0);
 }
 $('vd-speak').addEventListener('click', () => { const v = VERSES[vIndex]; speak([{ text: v.ref }, { text: v.t }]); });
