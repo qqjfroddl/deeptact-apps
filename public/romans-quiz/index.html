@@ -88,10 +88,12 @@
     text-align: center; color: transparent; line-height: 1.3;
   }
   .blank.shown { color: var(--accent); font-weight: 700; }
-  .answers { display: grid; gap: 8px; margin-top: 12px; }
-  .answers label { display: flex; align-items: center; gap: 8px; font-size: 15px; color: var(--muted); }
+  /* 입력칸 기본 너비(size=20)가 그리드 칸을 밀어내 화면 밖으로 넘치던 문제(삼성 인터넷) — 칸 최소폭을 0으로 묶는다 */
+  .answers { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; margin-top: 12px; }
+  .answers label { display: flex; align-items: center; gap: 8px; min-width: 0; font-size: 15px; color: var(--muted); }
+  .answers label { flex-wrap: nowrap; }
   .answers input {
-    flex: 1; min-width: 0; border: 1px solid var(--line); border-radius: var(--r-s); padding: 12px; font-size: 17px; background: #fff;
+    flex: 1 1 0; width: 100%; min-width: 0; border: 1px solid var(--line); border-radius: var(--r-s); padding: 12px; font-size: 17px; background: #fff;
   }
   .answers input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
   .answers input.ok { border-color: var(--ok); background: var(--ok-soft); }
@@ -434,7 +436,7 @@ function renderQuestion() {
   const labels = item.tpl ? item.tpl.split('{}').map((s) => s.trim()) : null;
   $('q-answers').innerHTML = Array.from({ length: n }, (_, i) => {
     const label = labels ? labels[i] : (inlineBlanks && n > 1 ? `빈칸 ${i + 1}` : (inlineBlanks ? '빈칸' : '정답'));
-    return `<label>${esc(label)}<input data-i="${i}" autocomplete="off" autocapitalize="off" enterkeyhint="${i === n - 1 ? 'done' : 'next'}"></label>`;
+    return `<label>${esc(label)}<input data-i="${i}" size="1" autocomplete="off" autocapitalize="off" enterkeyhint="${i === n - 1 ? 'done' : 'next'}"></label>`;
   }).join('');
   $('q-verdict').hidden = true;
   $('q-actions').hidden = false; $('q-after').hidden = true; $('q-override').hidden = true;
