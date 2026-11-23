@@ -28,6 +28,11 @@
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; }
+  /* 폰 브라우저(삼성 인터넷·글자 크기 확대)에서 어떤 요소도 화면 폭을 넘지 않게 한 번 더 막는다 */
+  html, body { max-width: 100%; overflow-x: hidden; }
+  .wrap, .card, section { min-width: 0; max-width: 100%; }
+  .card * { max-width: 100%; }
+  .qtext, .verse-text, .list-item { overflow-wrap: anywhere; }
   body {
     font-family: 'Paperlogy', -apple-system, 'Apple SD Gothic Neo', sans-serif;
     font-weight: 500;
